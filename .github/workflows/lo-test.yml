@@ -1,6 +1,9 @@
 name: build_master
 
 on:
+  schedule:
+    # daily build on UTC+8 7:30
+    - cron:  '30 23 * * *'
   repository_dispatch:
   workflow_dispatch:
     inputs:
