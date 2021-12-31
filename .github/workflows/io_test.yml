@@ -188,6 +188,7 @@ jobs:
     runs-on: ubuntu-18.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
+      BRANCH: ${{ github.event.client_payload.branch || github.event.inputs.branch }}
 
     steps:
 
@@ -233,6 +234,7 @@ jobs:
     runs-on: ubuntu-18.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
+      BRANCH: ${{ github.event.client_payload.branch || github.event.inputs.branch }}
 
     steps:
 
