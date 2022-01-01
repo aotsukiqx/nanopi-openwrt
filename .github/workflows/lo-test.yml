@@ -106,7 +106,7 @@ jobs:
         run: |
           ulimit -SHn 65000
           cd ~/lede
-          while true; do make download -j && break || true; done
+          while true; do make download -j -d && break || true; done
           make -j$[`nproc`+1] IGNORE_ERRORS=1
           mv `ls ~/lede/bin/targets/*/*/*imagebuilder*xz` ~/ib-$DEVICE.tar.xz
 
@@ -118,6 +118,7 @@ jobs:
           du -h --max-depth=1 ./ --exclude=build_dir --exclude=bin
           du -h --max-depth=1 ./build_dir
           du -h --max-depth=1 ./bin
+          
       - name: Clean build cache
         if: ${{ github.event.client_payload.package_clean == 'true' }}
         run: |
