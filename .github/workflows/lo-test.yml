@@ -87,6 +87,7 @@ jobs:
         run: |
           cd ~/lede
           sed -i '' 's/LINUX_VERSION\-5\.4.*\=.*/LINUX_VERSION\-5\.10 = \.88/g' include/kernel-version.mk
+          cat include/kernel-version.mk
           cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | sed 's/\(CONFIG_PACKAGE_luci-app-[^A-Z]*=\)y/\1m/' > .config
           find package/ -type d -name luci-app-* | rev | cut -d'/' -f1 | rev | xargs -n1 -i echo CONFIG_PACKAGE_{}=m >> .config
           cat $GITHUB_WORKSPACE/extra_packages.seed >> .config
