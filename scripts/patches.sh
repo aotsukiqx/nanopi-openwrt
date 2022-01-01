@@ -7,6 +7,7 @@ sed -i "/dep.*INCLUDE_.*=n/d" `find package/ -follow -type f -path '*/luci-app-t
 sed -i "s/option limit_enable '1'/option limit_enable '0'/" `find package/ -follow -type f -path '*/nft-qos/files/nft-qos.config'`
 sed -i "s/option enabled '1'/option enabled '0'/" `find package/ -follow -type f -path '*/vsftpd/files/vsftpd.uci'`
 sed -i "/\/etc\/coremark\.sh/d" `find package/ -follow -type f -path '*/coremark/coremark'`
+# 下面用于设置LAN默认地址
 sed -i 's/192.168.1.1/192.168.2.1/' package/base-files/files/bin/config_generate
 sed -i 's/=1/=0/g' package/kernel/linux/files/sysctl-br-netfilter.conf
 
@@ -58,10 +59,11 @@ if [ $BRANCH == 'master' ]; then
 
   git clean -f -d target/linux/rockchip
   # enable the gpu for device 'r2s'|'r2c'|'r4s'|'r1p'
-  wget https://github.com/coolsnowwolf/lede/raw/757e42d70727fe6b937bb31794a9ad4f5ce98081/target/linux/rockchip/config-default -NP target/linux/rockchip/
-  wget https://github.com/coolsnowwolf/lede/commit/f341ef96fe4b509a728ba1281281da96bac23673.patch
-  git apply f341ef96fe4b509a728ba1281281da96bac23673.patch
-  rm f341ef96fe4b509a728ba1281281da96bac23673.patch
+  # wget https://github.com/coolsnowwolf/lede/raw/757e42d70727fe6b937bb31794a9ad4f5ce98081/target/linux/rockchip/config-default -NP target/linux/rockchip/
+  wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/target/linux/rockchip/armv8/config-5.10 -NP target/linux/rockchip/ 
+  # wget https://github.com/coolsnowwolf/lede/commit/f341ef96fe4b509a728ba1281281da96bac23673.patch
+  # git apply f341ef96fe4b509a728ba1281281da96bac23673.patch
+  # rm f341ef96fe4b509a728ba1281281da96bac23673.patch
 
   # enable fan control
   wget https://github.com/friendlyarm/friendlywrt/commit/cebdc1f94dcd6363da3a5d7e1e69fd741b8b718e.patch
