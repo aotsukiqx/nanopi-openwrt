@@ -34,7 +34,7 @@ if [ $BRANCH == 'master' ]; then
   echo '# CONFIG_CRYPTO_GHASH_ARM_CE is not set' >> target/linux/sunxi/cortexa7/config-5.10
   echo '# CONFIG_CRYPTO_CRCT10DIF_ARM_CE is not set' >> target/linux/sunxi/cortexa7/config-5.10
   echo '# CONFIG_SUN50I_IOMMU is not set' >> target/linux/sunxi/cortexa7/config-5.10
-  echo '# CONFIG_UCLAMP_TASK is not set' >> target/linux/sunxi/config-5.4
+  echo '# CONFIG_UCLAMP_TASK is not set' >> target/linux/sunxi/config-5.10
   sed -i '/LINUX_5_4/d' package/kernel/r8168/Makefile
 
   # fix po path for snapshot
@@ -59,17 +59,22 @@ if [ $BRANCH == 'master' ]; then
 
   git clean -f -d target/linux/rockchip
   # enable the gpu for device 'r2s'|'r2c'|'r4s'|'r1p'
-  # wget https://github.com/coolsnowwolf/lede/raw/757e42d70727fe6b937bb31794a9ad4f5ce98081/target/linux/rockchip/config-default -NP target/linux/rockchip/
-  wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/target/linux/rockchip/armv8/config-5.10 -NP target/linux/rockchip/ 
-  # wget https://github.com/coolsnowwolf/lede/commit/f341ef96fe4b509a728ba1281281da96bac23673.patch
-  # git apply f341ef96fe4b509a728ba1281281da96bac23673.patch
-  # rm f341ef96fe4b509a728ba1281281da96bac23673.patch
+  wget https://github.com/coolsnowwolf/lede/raw/757e42d70727fe6b937bb31794a9ad4f5ce98081/target/linux/rockchip/config-default -NP target/linux/rockchip/
+  wget https://github.com/coolsnowwolf/lede/commit/f341ef96fe4b509a728ba1281281da96bac23673.patch
+  sed -i 's/config-5.4/config-5.10/g' f341ef96fe4b509a728ba1281281da96bac23673.patch
+  git apply f341ef96fe4b509a728ba1281281da96bac23673.patch
+  rm f341ef96fe4b509a728ba1281281da96bac23673.patch
 
   # enable fan control
   wget https://github.com/friendlyarm/friendlywrt/commit/cebdc1f94dcd6363da3a5d7e1e69fd741b8b718e.patch
   git apply cebdc1f94dcd6363da3a5d7e1e69fd741b8b718e.patch
   rm cebdc1f94dcd6363da3a5d7e1e69fd741b8b718e.patch
   sed -i 's/pwmchip1/pwmchip0/' target/linux/rockchip/armv8/base-files/usr/bin/fa-fancontrol.sh target/linux/rockchip/armv8/base-files/usr/bin/fa-fancontrol-direct.sh
+
+  # add ntfs3
+  wget https://github.com/coolsnowwolf/lede/commit/772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
+  git apply 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
+  rm 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
 
   #this is a ugly fix
   sed -i '/procd-ujail/d' include/target.mk
