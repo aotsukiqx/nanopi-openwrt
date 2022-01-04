@@ -1,6 +1,7 @@
 function merge_package(){
     pn=`echo $1 | rev | cut -d'/' -f 1 | rev`
-    find package/ -follow -name $pn -not -path "package/custom/*" | xargs -rt rm -r
+    # quick fix find kodexplorer more than one time
+    find package/ -follow -name $pn -not -path "package/custom/*" | xargs -rt rm -r || true
     if [ ! -z "$2" ]; then
         find package/ -follow -name $2 -not -path "package/custom/*" | xargs -rt rm -r
     fi
