@@ -6,7 +6,7 @@ BRANCH="master"
 
 echo "Prepare env"
 cd
-mkdir -p $GITHUB_WORKSPACE
+# mkdir -p $GITHUB_WORKSPACE
 if [ -d $GITHUB_WORKSPACE ]; then
 git clone -b $BRANCH --single-branch https://github.com/aotsukiqx/nanopi-openwrt $GITHUB_WORKSPACE
 fi
