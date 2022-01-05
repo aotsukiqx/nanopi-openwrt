@@ -1,7 +1,7 @@
 function merge_package(){
     pn=`echo $1 | rev | cut -d'/' -f 1 | rev`
     # quick fix find kodexplorer more than one time
-    find package/ -follow -name $pn -not -path "package/custom/*" | xargs -rt rm -r || true
+    find package/ -follow -name $pn -not -path "package/custom/*" | head -n 1 | xargs -rt rm -r
     if [ ! -z "$2" ]; then
         find package/ -follow -name $2 -not -path "package/custom/*" | xargs -rt rm -r
     fi
@@ -36,7 +36,7 @@ merge_package https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-k
 merge_package https://github.com/project-lede/luci-app-godproxy
 merge_package https://github.com/sundaqiang/openwrt-packages/trunk/luci-app-wolplus
 merge_package https://github.com/coolsnowwolf/lede/trunk/package/lean/automount
-merge_package https://github.com/coolsnowwolf/lede/trunk/package/lean/ntfs3-oot-mount
+merge_package https://github.com/coolsnowwolf/lede/trunk/package/lean/ntfs3-mount
 merge_package https://github.com/coolsnowwolf/lede/trunk/package/lean/ntfs3-oot
 merge_package https://github.com/coolsnowwolf/lede/trunk/package/lean/uugamebooster
 merge_package https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-uugamebooster

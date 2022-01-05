@@ -74,6 +74,7 @@ jobs:
           fi
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+          echo "Merge packages & patches..."
           . $GITHUB_WORKSPACE/scripts/merge_packages.sh
           . $GITHUB_WORKSPACE/scripts/patches.sh
           cd
