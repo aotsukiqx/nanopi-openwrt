@@ -76,6 +76,7 @@ jobs:
           ./scripts/feeds install -a
           echo "Merge packages & patches..."
           . $GITHUB_WORKSPACE/scripts/merge_packages.sh
+          ./scripts/feeds install -a
           . $GITHUB_WORKSPACE/scripts/patches.sh
           cd
           BRANCH='master'
