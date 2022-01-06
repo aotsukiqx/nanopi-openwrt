@@ -302,7 +302,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./release/*
-          # tag: ${{env.strDate}}.${{env.BRANCH}}
+          tag: ${{env.strDate}}.${{env.BRANCH}}.Lean
           file_glob: true
           overwrite: true
           release_name: ${{env.strDate}} ${{env.BRANCH}} Lean build
