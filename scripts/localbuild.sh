@@ -165,7 +165,7 @@ echo "Debug via tmate"
 #generate_slim_firmware:
 #  needs: build_packages
 #  name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
-#  runs-on: ubuntu-20.04 # ubuntu-18.04
+#  runs-on: ubuntu-20.04 # ubuntu-20.04
 #  env:
 #    DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
 #    BRANCH: master
