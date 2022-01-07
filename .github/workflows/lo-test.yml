@@ -21,7 +21,7 @@ jobs:
   build_packages:
     name: Build ${{ github.event.client_payload.device || github.event.inputs.device }} packages
     timeout-minutes: 1200
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
       BRANCH: ${{ github.event.client_payload.branch || github.event.inputs.branch }}
@@ -86,7 +86,7 @@ jobs:
 
       - name: Custom configure file
         run: |
-          cd ~/lede
+          cd ~/lede && rm -rf .tmp/
           sed -i 's/KERNEL_PATCHVER\=5\.4/KERNEL_PATCHVER\=5\.10/g' target/linux/rockchip/Makefile
           sed -i 's/KERNEL_TESTING_PATCHVER\=5\.10/KERNEL_TESTING_PATCHVER\=5\.15/g' target/linux/rockchip/Makefile
           cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | sed 's/\(CONFIG_PACKAGE_luci-app-[^A-Z]*=\)y/\1m/' > .config
@@ -108,8 +108,9 @@ jobs:
         run: |
           ulimit -SHn 65000
           cd ~/lede
-          while true; do make download -j1 && break || true; done
+          while true; do make download -j && break || true; done
           make -j$[`nproc`+1] IGNORE_ERRORS=1
+          if [ ! -e ~/lede/bin/targets/*/*/*imagebuilder*xz ]; then make V=sc; fi
           mv `ls ~/lede/bin/targets/*/*/*imagebuilder*xz` ~/ib-$DEVICE.tar.xz
 
           echo "======================="
@@ -202,7 +203,7 @@ jobs:
   generate_slim_firmware:
     needs: build_packages
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
       BRANCH: master
@@ -249,7 +250,7 @@ jobs:
     needs: build_packages
     if: "!cancelled()" #always()
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
       BRANCH: master
