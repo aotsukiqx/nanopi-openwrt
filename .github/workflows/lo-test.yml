@@ -93,6 +93,7 @@ jobs:
           find package/ -type d -name luci-app-* | rev | cut -d'/' -f1 | rev | xargs -n1 -i echo CONFIG_PACKAGE_{}=m >> .config
           cat $GITHUB_WORKSPACE/extra_packages.seed >> .config
           cat more_luci.txt >> .config
+          # try build using formal kernel hash, testing
           # cp $GITHUB_WORKSPACE/vermagic ./vermagic
           # sed -i 's/grep[ ].*\/\.vermagic/cp \$\(TOPDIR\)\/vermagic \$\(LINUX_DIR\)\/\.vermagic/' include/kernel-defaults.mk
           # sed -i 's/STAMP_BUILT\:\=.*$(MKHASH)[ ]md5)/cp \$\(TOPDIR\)\/vermagic \$\(LINUX_DIR\)\/\.vermagic/' package/kernel/linux/Makefile
@@ -163,8 +164,8 @@ jobs:
           sudo umount lede
           sudo losetup -d $LOOP_DEVICE
           export AUTH="Authorization: token ${{ secrets.SEC_TOKEN }}"
-          export cache_path='github.com/repos/klever1988/sshactions/releases'
-          export cache_repo_id='39020554'
+          export cache_path='github.com/repos/aotsukiqx/nanopi-openwrt/releases'
+          export cache_repo_id='56878497'
           #zstdmt -c --adapt --long lede.img | parallel --wc --block 1.99G --pipe \
           #'curl -s --data-binary @- -H "$AUTH" -H "Content-Type: application/octet-stream" https://uploads.$cache_path/$cache_repo_id/assets?name=lede.'$DEVICE'.img.zst.0{#} > /dev/null'
           zstdmt -c --long lede.img | split --numeric=1 -b 2000m - lede.$DEVICE.img.zst.
@@ -180,7 +181,7 @@ jobs:
           xargs -n1 -i curl -X DELETE -H "$AUTH" "https://api.$cache_path/assets/{}"
           ls *img.zst* ib-$DEVICE.tar.xz | parallel --wc 'while true; do curl -T {} -H "$AUTH" -H "Content-Type: application/octet-stream" "https://uploads.$cache_path/$cache_repo_id/assets?name={}" && break || true; done'
           set +e
-          for i in {1..20}; do curl -sL --fail https://github.com/klever1988/sshactions/releases/download/cache/lede.$DEVICE.img.zst.0$i || break; done | zstdmt -d -o /dev/null
+          for i in {1..20}; do curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/cache/lede.$DEVICE.img.zst.0$i || break; done | zstdmt -d -o /dev/null
           if [ $? -eq 0 ]; then break; fi
           done
           set -e
