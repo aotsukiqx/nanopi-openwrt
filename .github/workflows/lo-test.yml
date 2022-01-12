@@ -108,7 +108,7 @@ jobs:
           make package/clean
           df -h .
       - name: Build and deploy packages
-        timeout-minutes: 480
+        timeout-minutes: 1440
         run: |
           ulimit -SHn 65000
           cd ~/lede

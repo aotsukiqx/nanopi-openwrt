@@ -27,7 +27,6 @@ if [ $BRANCH == 'master' ]; then
 
   git checkout target/linux/rockchip
   git checkout target/linux/x86
-  #sed -i 's/5.10/5.4/' target/linux/rockchip/Makefile
   git revert --no-commit -X theirs 91eed5d9fb74e6c740291362ba12e11a2222a9fd
   
   echo '# CONFIG_KCSAN is not set' >> target/linux/x86/config-5.10
