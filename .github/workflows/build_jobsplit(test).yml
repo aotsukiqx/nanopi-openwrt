@@ -243,7 +243,7 @@ jobs:
           TUNNEL_HOST: ${{secrets.TUNNEL_HOST}}
 
   generate_slim_firmware:
-    needs: build_packages
+    needs: build_packages_step_2
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
     runs-on: ubuntu-20.04
     env:
