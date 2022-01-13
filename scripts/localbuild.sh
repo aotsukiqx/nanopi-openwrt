@@ -66,11 +66,11 @@ make defconfig && sed -i -E 's/# (CONFIG_.*_COMPRESS_UPX) is not set/\1=y/' .con
 cat .config
 
 echo "Clean build cache"
-#if: ${{ github.event.client_payload.package_clean == 'true' || github.event.inputs.device != '' }}
-#cd ~/lede
-#df -h .
-#make package/clean
-#df -h .
+# if: ${{ github.event.client_payload.package_clean == 'true' || github.event.inputs.device != '' }}
+cd ~/lede
+df -h .
+make package/clean
+df -h .
 
 echo "Build and deploy packages"
 ulimit -SHn 65000
@@ -90,10 +90,10 @@ du -h --max-depth=1 ./bin
           
 echo "Clean build cache"
 #if: ${{ github.event.client_payload.package_clean == 'true' }}
-#cd ~/lede
-#df -h .
-#make package/clean
-#df -h .
+cd ~/lede
+df -h .
+make package/clean
+df -h .
 
 echo "Prepare artifact"
 cd
@@ -115,35 +115,35 @@ echo "Deliver buildinfo"
 
 echo "Save cache state"
 #if: env.TG
-#cd
-#sleep 60
-#sudo mount -o remount,compress=no,nodatacow,nodatasum lede
-#cd lede/; pv /dev/zero > zerospace || true; sync; rm -f zerospace; cd -
-#sleep 60
-#sudo umount lede
-#sudo losetup -d $LOOP_DEVICE
-#export AUTH="Authorization: token ${{ secrets.SEC_TOKEN }}"
-#export cache_path='github.com/repos/klever1988/sshactions/releases'
-#export cache_repo_id='39020554'
-##zstdmt -c --adapt --long lede.img | parallel --wc --block 1.99G --pipe \
-##'curl -s --data-binary @- -H "$AUTH" -H "Content-Type: application/octet-stream" https://uploads.$cache_path/$cache_repo_id/assets?name=lede.'$DEVICE'.img.zst.0{#} > /dev/null'
-#zstdmt -c --long lede.img | split --numeric=1 -b 2000m - lede.$DEVICE.img.zst.
-##for f in *img.zst*
-##do
-##  while true; do curl --data-binary @$f -H "$AUTH" -H 'Content-Type: application/octet-stream' "https://uploads.$cache_path/$cache_repo_id/assets?name=$f" && break || true; done
-##done
-#while true; do
-#ret=$(curl -sH "$AUTH" "https://api.$cache_path/tags/cache")
-#echo $ret | jq -r '.assets[] | select(.name | contains ("'$DEVICE'.img")).id' | \
-#xargs -n1 -i curl -X DELETE -H "$AUTH" "https://api.$cache_path/assets/{}"
-#echo $ret | jq -r '.assets[] | select(.name == "ib-'$DEVICE'.tar.xz").id' | \
-#xargs -n1 -i curl -X DELETE -H "$AUTH" "https://api.$cache_path/assets/{}"
-#ls *img.zst* ib-$DEVICE.tar.xz | parallel --wc 'while true; do curl -T {} -H "$AUTH" -H "Content-Type: application/octet-stream" "https://uploads.$cache_path/$cache_repo_id/assets?name={}" && break || true; done'
-#set +e
-#for i in {1..20}; do curl -sL --fail https://github.com/klever1988/sshactions/releases/download/cache/lede.$DEVICE.img.zst.0$i || break; done | zstdmt -d -o /dev/null
-#if [ $? -eq 0 ]; then break; fi
+cd
+sleep 60
+sudo mount -o remount,compress=no,nodatacow,nodatasum lede
+cd lede/; pv /dev/zero > zerospace || true; sync; rm -f zerospace; cd -
+sleep 60
+sudo umount lede
+sudo losetup -d $LOOP_DEVICE
+export AUTH="Authorization: token ${{ secrets.SEC_TOKEN }}"
+export cache_path='github.com/repos/klever1988/sshactions/releases'
+export cache_repo_id='39020554'
+#zstdmt -c --adapt --long lede.img | parallel --wc --block 1.99G --pipe \
+#'curl -s --data-binary @- -H "$AUTH" -H "Content-Type: application/octet-stream" https://uploads.$cache_path/$cache_repo_id/assets?name=lede.'$DEVICE'.img.zst.0{#} > /dev/null'
+zstdmt -c --long lede.img | split --numeric=1 -b 2000m - lede.$DEVICE.img.zst.
+#for f in *img.zst*
+#do
+#  while true; do curl --data-binary @$f -H "$AUTH" -H 'Content-Type: application/octet-stream' "https://uploads.$cache_path/$cache_repo_id/assets?name=$f" && break || true; done
 #done
-#set -e
+while true; do
+ret=$(curl -sH "$AUTH" "https://api.$cache_path/tags/cache")
+echo $ret | jq -r '.assets[] | select(.name | contains ("'$DEVICE'.img")).id' | \
+xargs -n1 -i curl -X DELETE -H "$AUTH" "https://api.$cache_path/assets/{}"
+echo $ret | jq -r '.assets[] | select(.name == "ib-'$DEVICE'.tar.xz").id' | \
+xargs -n1 -i curl -X DELETE -H "$AUTH" "https://api.$cache_path/assets/{}"
+ls *img.zst* ib-$DEVICE.tar.xz | parallel --wc 'while true; do curl -T {} -H "$AUTH" -H "Content-Type: application/octet-stream" "https://uploads.$cache_path/$cache_repo_id/assets?name={}" && break || true; done'
+set +e
+for i in {1..20}; do curl -sL --fail https://github.com/klever1988/sshactions/releases/download/cache/lede.$DEVICE.img.zst.0$i || break; done | zstdmt -d -o /dev/null
+if [ $? -eq 0 ]; then break; fi
+done
+set -e
 
 echo "Send tg notification"
 #if: env.TG
