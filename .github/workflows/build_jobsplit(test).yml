@@ -84,6 +84,7 @@ jobs:
           popd
 
   build_packages_step_1:
+    needs: prepare_build_param
     name: Build ${{ github.event.client_payload.device || github.event.inputs.device }} packages step 1
     runs-on: ubuntu-20.04
     env:
@@ -122,6 +123,7 @@ jobs:
           while true; do make download -j && break || true; done
 
   build_packages_step_2:
+    needs: build_packages_step_1
     name: Build ${{ github.event.client_payload.device || github.event.inputs.device }} packages step 2
     runs-on: ubuntu-20.04
     env:
@@ -174,6 +176,7 @@ jobs:
           path: ./artifact/buildinfo/
 
   update_image_builders:
+    needs: build_packages_step_2
     name: Update ${{ github.event.client_payload.device || github.event.inputs.device }} image builder
     runs-on: ubuntu-20.04
     env:
@@ -286,7 +289,7 @@ jobs:
           release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
 
   generate_firmware:
-    needs: build_packages
+    needs: build_packages_step_2
     if: "!cancelled()" #always()
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
     runs-on: ubuntu-20.04
