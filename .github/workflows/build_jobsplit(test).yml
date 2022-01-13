@@ -217,7 +217,7 @@ jobs:
           set -e
 
   generate_slim_firmware:
-    needs: build_packages_step_2
+    needs: update_image_builders
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
     runs-on: ubuntu-20.04
     env:
@@ -263,7 +263,7 @@ jobs:
           release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
 
   generate_firmware:
-    needs: build_packages_step_2
+    needs: update_image_builders
     if: "!cancelled()" #always()
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
     runs-on: ubuntu-20.04
