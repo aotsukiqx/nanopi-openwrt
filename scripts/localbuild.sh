@@ -5,7 +5,7 @@ DEVICE=r4s
 BRANCH="master"
 
 echo "Prepare env"
-cd
+cd $GITHUB_WORKSPACE
 # mkdir -p $GITHUB_WORKSPACE
 if [ -d $GITHUB_WORKSPACE ]; then
 git clone -b $BRANCH --single-branch https://github.com/aotsukiqx/nanopi-openwrt $GITHUB_WORKSPACE
@@ -16,7 +16,7 @@ sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk
 sudo sysctl vm.swappiness=0
 
 echo "Checkout..."
-cd
+cd $GITHUB_WORKSPACE
 curl -sL https://raw.githubusercontent.com/klever1988/nanopi-openwrt/zstd-bin/zstd | sudo tee /usr/bin/zstd > /dev/null
 for i in {1..20}
 do
@@ -96,7 +96,7 @@ make package/clean
 df -h .
 
 echo "Prepare artifact"
-cd
+cd $GITHUB_WORKSPACE
 mkdir -p ./artifact/buildinfo
 cd lede
 cp -rf $(find ./bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") ../artifact/buildinfo/
@@ -115,7 +115,7 @@ echo "Deliver buildinfo"
 
 echo "Save cache state"
 #if: env.TG
-cd
+cd $GITHUB_WORKSPACE
 sleep 60
 sudo mount -o remount,compress=no,nodatacow,nodatasum lede
 cd lede/; pv /dev/zero > zerospace || true; sync; rm -f zerospace; cd -
@@ -209,7 +209,7 @@ echo "Debug via tmate"
 #  release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
 
 echo "generate_firmware:"
-cd
+cd $GITHUB_WORKSPACE
 sudo apt update && sudo apt install qemu-utils
 sudo sysctl vm.swappiness=0
 ulimit -SHn 65000
