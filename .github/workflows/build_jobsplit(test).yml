@@ -216,32 +216,6 @@ jobs:
           done
           set -e
 
-  send_notification:
-    name: Send notification
-    runs-on: ubuntu-20.04
-    env:
-      DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
-      BRANCH: ${{ github.event.client_payload.branch || github.event.inputs.branch }}
-      TG: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-    steps:
-      - name: Send tg notification
-        if: env.TG
-        run: |
-          curl -k --data chat_id="${{secrets.TELEGRAM_CHAT_ID}}" --data "text=The ${{env.DEVICE}} build ran completed at ${{job.status}}." "https://api.telegram.org/bot${{secrets.TELEGRAM_BOT_TOKEN}}/sendMessage"
-
-      - name: Debug via tmate
-        uses: klever1988/ssh2actions@main
-        if: ${{ failure() && env.TG }}
-        with:
-          mode: ssh
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          SSH_PASSWORD: ${{secrets.SSH_PASSWORD}}
-          SSH_PUBKEY: ${{secrets.SSH_PUBKEY}}
-          NGROK_TOKEN: ${{secrets.TUNNEL_KEY}}
-          TUNNEL_HOST: ${{secrets.TUNNEL_HOST}}
-
   generate_slim_firmware:
     needs: build_packages_step_2
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
@@ -350,3 +324,30 @@ jobs:
           file_glob: true
           overwrite: true
           release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
+
+  send_notification:
+    needs: [generate_slim_firmware, generate_firmware]
+    name: Send notification
+    runs-on: ubuntu-20.04
+    env:
+      DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
+      BRANCH: ${{ github.event.client_payload.branch || github.event.inputs.branch }}
+      TG: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    steps:
+      - name: Send tg notification
+        if: env.TG
+        run: |
+          curl -k --data chat_id="${{secrets.TELEGRAM_CHAT_ID}}" --data "text=The ${{env.DEVICE}} build ran completed at ${{job.status}}." "https://api.telegram.org/bot${{secrets.TELEGRAM_BOT_TOKEN}}/sendMessage"
+
+      - name: Debug via tmate
+        uses: klever1988/ssh2actions@main
+        if: ${{ failure() && env.TG }}
+        with:
+          mode: ssh
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SSH_PASSWORD: ${{secrets.SSH_PASSWORD}}
+          SSH_PUBKEY: ${{secrets.SSH_PUBKEY}}
+          NGROK_TOKEN: ${{secrets.TUNNEL_KEY}}
+          TUNNEL_HOST: ${{secrets.TUNNEL_HOST}}
