@@ -76,6 +76,7 @@ jobs:
             pushd feeds/routing; git restore .; popd
             pushd feeds/telephony; git restore .; popd
           fi
+          echo "src-git infinityfreedom https://github.com/xiaoqingfengATGH/luci-theme-infinityfreedom.git" >> feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           echo "Merge packages & patches..."
