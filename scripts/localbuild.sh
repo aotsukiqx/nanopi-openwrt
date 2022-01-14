@@ -1,12 +1,12 @@
 # set env:
-GITHUB_WORKSPACE=$(pwd)
+GITHUB_WORKSPACE=$(pwd)/r4s
 GITHUB_ENV=''
-DEVICE=r4s
+DEVICE=x86
 BRANCH="master"
 
 echo "Prepare env"
 cd $GITHUB_WORKSPACE
-# mkdir -p $GITHUB_WORKSPACE
+mkdir -p $GITHUB_WORKSPACE
 if [ -d $GITHUB_WORKSPACE ]; then
 git clone -b $BRANCH --single-branch https://github.com/aotsukiqx/nanopi-openwrt $GITHUB_WORKSPACE
 fi
