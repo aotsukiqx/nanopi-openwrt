@@ -1,4 +1,4 @@
-name: build_Lean
+name: build_Lean(test)
 
 on:
   # schedule:
