@@ -28,10 +28,7 @@ if [ $BRANCH == 'master' ]; then
   git checkout target/linux/rockchip
   git checkout target/linux/x86
   git revert --no-commit -X theirs 91eed5d9fb74e6c740291362ba12e11a2222a9fd
-  
-  # sed -i 's/\#[ ]CONFIG_BLK_CGROUP_IOCOST.*/CONFIG_BLK_CGROUP_IOCOST=y/g' target/linux/generic/config-5.10
-  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/rockchip/armv8/config-5.10
-  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/x86/generic/config-5.10
+
   echo '# CONFIG_KCSAN is not set' >> target/linux/x86/config-5.10
   echo '# CONFIG_CRYPTO_GHASH_ARM_CE is not set' >> target/linux/sunxi/cortexa7/config-5.10
   echo '# CONFIG_CRYPTO_CRCT10DIF_ARM_CE is not set' >> target/linux/sunxi/cortexa7/config-5.10
@@ -81,6 +78,11 @@ if [ $BRANCH == 'master' ]; then
   #this is a ugly fix
   sed -i '/procd-ujail/d' include/target.mk
   echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
+
+  #fix docker run error
+  sed -i 's/.*CONFIG_BLK_CGROUP_IOCOST.*/CONFIG_BLK_CGROUP_IOCOST\=y/g' target/linux/generic/config-5.10
+  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/rockchip/armv8/config-5.10
+  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/x86/generic/config-5.10
 
   # bring the ethinfo back
   cd package/emortal/autocore/files/x86
