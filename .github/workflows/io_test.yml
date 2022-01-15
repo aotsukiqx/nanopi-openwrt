@@ -1,7 +1,6 @@
 name: build18.04_k5.4
 
 on:
-  repository_dispatch:
   workflow_dispatch:
     inputs:
       device:
