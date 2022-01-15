@@ -79,11 +79,6 @@ if [ $BRANCH == 'master' ]; then
   sed -i '/procd-ujail/d' include/target.mk
   echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
 
-  #fix docker run error
-  sed -i 's/.*CONFIG_BLK_CGROUP_IOCOST.*/CONFIG_BLK_CGROUP_IOCOST\=y/g' target/linux/generic/config-5.10
-  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/rockchip/armv8/config-5.10
-  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/x86/generic/config-5.10
-
   # bring the ethinfo back
   cd package/emortal/autocore/files/x86
   cp rpcd_luci rpcd_10_system.js rpcd_luci-mod-status.json ../arm
