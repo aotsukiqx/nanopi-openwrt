@@ -29,7 +29,7 @@ if [ $BRANCH == 'master' ]; then
   git checkout target/linux/x86
   git revert --no-commit -X theirs 91eed5d9fb74e6c740291362ba12e11a2222a9fd
   
-  sed -i 's/\#[]CONFIG_BLK_CGROUP_IOCOST.*/CONFIG_BLK_CGROUP_IOCOST=y/g' target/linux/generic/config-5.10
+  sed -i "s/#[]CONFIG_BLK_CGROUP_IOCOST.*/CONFIG_BLK_CGROUP_IOCOST=y/g" target/linux/generic/config-5.10
   echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/rockchip/armv8/config-5.10
   echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/x86/generic/config-5.10
   echo '# CONFIG_KCSAN is not set' >> target/linux/x86/config-5.10
