@@ -79,6 +79,12 @@ if [ $BRANCH == 'master' ]; then
   sed -i '/procd-ujail/d' include/target.mk
   echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
 
+  #fix docker run error
+  sed -i 's/.*CONFIG_BLK_CGROUP_IOCOST.*/CONFIG_BLK_CGROUP_IOCOST\=y/g' target/linux/generic/config-5.10
+  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/rockchip/armv8/config-5.10
+  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/x86/generic/config-5.10
+  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/x86/64/config-5.10
+
   # bring the ethinfo back
   cd package/emortal/autocore/files/x86
   cp rpcd_luci rpcd_10_system.js rpcd_luci-mod-status.json ../arm
@@ -117,7 +123,7 @@ if [[ ! -z "$line_number_h6" ]]; then
 sed -i $line_number_h6',+10 s/font-weight: normal/font-weight: bold/' $css_file
 fi
 
-# set default theme to openwrt2020
+# set default theme to argon
 sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' `find package -type f -path '*/default-settings/files/99-default-settings'`
 
 # remove the mirros from cn
