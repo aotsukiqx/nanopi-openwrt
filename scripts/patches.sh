@@ -79,7 +79,7 @@ if [ $BRANCH == 'master' ]; then
   sed -i '/procd-ujail/d' include/target.mk
   echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
 
-  #fix docker run error
+  #fix docker run error "https://github.com/openwrt/luci/issues/5327", patch luci compile error, so try this way
   sed -i 's/.*CONFIG_BLK_CGROUP_IOCOST.*/CONFIG_BLK_CGROUP_IOCOST\=y/g' target/linux/generic/config-5.10
   echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/rockchip/armv8/config-5.10
   echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/x86/generic/config-5.10
