@@ -121,8 +121,8 @@ jobs:
           ulimit -SHn 65000
           cd ~/lede
           while true; do make download -j && break || true; done
-          #make -j$[`nproc`+1] IGNORE_ERRORS=1
-          make -j1 V=s IGNORE_ERRORS=1
+          make -j$[`nproc`+1] IGNORE_ERRORS=1
+          # make -j1 V=s IGNORE_ERRORS=1
           if [ ! -e ~/lede/bin/targets/*/*/*imagebuilder*xz ]; then make V=sc; fi
           mv `ls ~/lede/bin/targets/*/*/*imagebuilder*xz` ~/ib-$DEVICE.tar.xz
 
