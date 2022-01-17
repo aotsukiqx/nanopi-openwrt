@@ -80,10 +80,10 @@ if [ $BRANCH == 'master' ]; then
   echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
 
   #fix docker run error "https://github.com/openwrt/luci/issues/5327", patch luci compile error, so try this way
-  sed -i 's/.*CONFIG_BLK_CGROUP_IOCOST.*/CONFIG_BLK_CGROUP_IOCOST\=y/g' target/linux/generic/config-5.10
-  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/rockchip/armv8/config-5.10
-  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/x86/generic/config-5.10
-  echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/x86/64/config-5.10
+  # sed -i 's/.*CONFIG_BLK_CGROUP_IOCOST.*/CONFIG_BLK_CGROUP_IOCOST\=y/g' target/linux/generic/config-5.10
+  # echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/rockchip/armv8/config-5.10
+  # echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/x86/generic/config-5.10
+  # echo 'CONFIG_BLK_CGROUP_IOCOST=y' >> target/linux/x86/64/config-5.10
 
   # bring the ethinfo back
   cd package/emortal/autocore/files/x86
