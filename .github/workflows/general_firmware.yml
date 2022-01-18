@@ -8,7 +8,7 @@ on:
     inputs:
       device:
         description: 'select device to build'
-        default: 'r4s'
+        default: 'x86'
         required: false
       branch:
         description: 'seleclt openwrt branch'
