@@ -50,7 +50,7 @@ jobs:
           curl -sL https://raw.githubusercontent.com/klever1988/nanopi-openwrt/zstd-bin/zstd | sudo tee /usr/bin/zstd > /dev/null
           for i in {1..20}
           do
-            if [ $DEVICE != 'r4s']; then
+            if [ $DEVICE != 'r4s' || $DEVICE != 'x86']; then
               echo "Using ib: $DEVICE"
               curl -sL --fail https://github.com/klever1988/sshactions/releases/download/cache/lede.$DEVICE.img.zst.0$i || break
             else
@@ -142,7 +142,6 @@ jobs:
           set -e
 
   build_packages_2:
-    needs: build_packages_1
     name: Build ${{ github.event.client_payload.device || github.event.inputs.device }} packages step 2
     runs-on: ubuntu-20.04
     env:
@@ -153,6 +152,7 @@ jobs:
     steps:    
       - name: Restore status
         run: |
+          echo "PWD: $(pwd)"
           sudo apt update;
           sudo apt -y --no-upgrade --no-install-recommends install pv jq build-essential zstd xz-utils cmake asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libreadline-dev libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint ccache curl wget vim nano python2.7 python3 python3-pip python-ply python3-ply haveged lrzsz device-tree-compiler scons antlr3 gperf intltool mkisofs rsync swig
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk
@@ -166,8 +166,12 @@ jobs:
           do curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/mid.$DEVICE.zst.0$i || break
           done | zstdmt -d -o save.tar.gz.zst
           zstd -d save.tar.gz.zst -o save.tar.gz
-          tar -zxvf save.tar.gz
+          tar -zxvf save.tar.gz -C /
+          cd ~
+          echo "PWD: $(pwd)"
+          zstdmt lede.img
           LOOP_DEVICE=$(losetup -f) && echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
+          echo "losetup..."
           sudo losetup -P --direct-io $LOOP_DEVICE lede.img
           mkdir lede && sudo mount -o nossd,compress=zstd $LOOP_DEVICE lede
              
