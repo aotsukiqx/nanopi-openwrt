@@ -43,7 +43,7 @@ jobs:
           do curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/mid.$DEVICE.zst.0$i || break
           done | zstdmt -d -o save.tar.gz.zst
           zstd -d save.tar.gz.zst -o save.tar.gz
-          tar -zxvf save.tar.gz -C ~/
+          tar -zxvf save.tar.gz -C /
           cd ~
           echo "PWD: $(pwd)"
           zstdmt lede.img
