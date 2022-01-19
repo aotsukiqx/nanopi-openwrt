@@ -164,7 +164,8 @@ jobs:
           export cache_repo_id='56878497'
           for i in {1..20}
           do curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/mid.$DEVICE.zst.0$i || break
-          done | zstdmt -d -o save.tar.gz
+          done | zstdmt -d -o save.tar.gz.zst
+          zstd -d save.tar.gz.zst -o save.tar.gz
           tar -zxvf save.tar.gz
           LOOP_DEVICE=$(losetup -f) && echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
           sudo losetup -P --direct-io $LOOP_DEVICE lede.img
