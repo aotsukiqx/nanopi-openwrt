@@ -162,8 +162,8 @@ jobs:
           export AUTH="Authorization: token ${{ secrets.SEC_TOKEN }}"
           export cache_path='github.com/repos/aotsukiqx/nanopi-openwrt/releases'
           export cache_repo_id='56878497'
-          for i in {1..20}; do curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/mid.$DEVICE.zst.0$i || break; done | zstdmt -d -o /dev/null
-          if [ $? -eq 0 ]; then break; fi
+          for i in {1..20}
+          do curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/mid.$DEVICE.zst.0$i || break
           done | zstdmt -d -o save.tar.gz
           tar -xvf save.tar.gz
           LOOP_DEVICE=$(losetup -f) && echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
