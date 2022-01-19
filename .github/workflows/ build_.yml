@@ -127,7 +127,7 @@ jobs:
           sudo umount lede
           cd
           ls -alh
-          tar -czvf save.tar.gz .
+          tar -czvf save.tar.gz $GITHUB_WORKSPACE /luci lede.img
           zstd save.tar.gz -o save.tar.gz.zst
           zstdmt -c --long save.zst | split --numeric=1 -b 2000m - mid.$DEVICE.zst.
           while true; do
@@ -161,7 +161,9 @@ jobs:
           if [ $? -eq 0 ]; then break; fi
           done | zstdmt -d -o save.tar.gz
           tar -xvf save.tar.gz
-
+          LOOP_DEVICE=$(losetup -f) && echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
+          sudo losetup -P --direct-io $LOOP_DEVICE lede.img
+          mkdir lede && sudo mount -o nossd,compress=zstd $LOOP_DEVICE lede
              
       - name: Build and deploy packages
         run: |
