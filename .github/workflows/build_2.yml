@@ -44,6 +44,7 @@ jobs:
           zstd -d save.tar.gz.zst -o save.tar.gz
           tar -zxvf save.tar.gz -C ~/
           cd ~
+          zstdmt lede.img
           LOOP_DEVICE=$(losetup -f) && echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
           echo "losetup..."
           sudo losetup -P --direct-io $LOOP_DEVICE lede.img
