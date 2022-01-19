@@ -127,7 +127,7 @@ jobs:
           sudo umount lede
           cd
           ls -alh
-          tar -czvf save.tar.gz $GITHUB_WORKSPACE /luci lede.img
+          tar -czvf save.tar.gz $GITHUB_WORKSPACE ~/luci ~/lede.img
           zstd save.tar.gz -o save.tar.gz.zst
           zstdmt -c --long save.zst | split --numeric=1 -b 2000m - mid.$DEVICE.zst.
           while true; do
