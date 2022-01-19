@@ -128,8 +128,8 @@ jobs:
           cd
           ls -alh
           tar -czvf ~/save.tar.gz $GITHUB_WORKSPACE ~/luci ~/lede.img
-          zstd save.tar.gz -o save.tar.gz.zst
-          zstdmt -c --long save.zst | split --numeric=1 -b 2000m - mid.$DEVICE.zst.
+          zstd ~/save.tar.gz -o ~/save.tar.gz.zst
+          zstdmt -c --long save.tar.gz.zst | split --numeric=1 -b 2000m - mid.$DEVICE.zst.
           while true; do
           ret=$(curl -sH "$AUTH" "https://api.$cache_path/tags/ib_cache")
           echo $ret | jq -r '.assets[] | select(.name | contains ("mid.'$DEVICE'.img")).id' | \
