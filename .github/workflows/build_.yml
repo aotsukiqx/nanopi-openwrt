@@ -149,6 +149,7 @@ jobs:
           set -e
 
   build_packages_2:
+    needs: build_packages_1
     name: Build ${{ github.event.client_payload.device || github.event.inputs.device }} packages step 2
     runs-on: ubuntu-20.04
     env:
