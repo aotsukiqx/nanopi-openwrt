@@ -35,4 +35,4 @@ jobs:
           npm install -g argon2-cli
           
           echo "Gen pass..."
-          echo -n "thisismypassword" | npx argon2-cli -e
+          echo -n "g;nB6,MHJ6C7i2/{GF" | npx argon2-cli -e
