@@ -109,13 +109,20 @@ jobs:
           make defconfig && sed -i -E 's/# (CONFIG_.*_COMPRESS_UPX) is not set/\1=y/' .config && make defconfig
           cat .config
 
-      - name: Clean build cache and save status
+      - name: Clean build cache
         if: ${{ github.event.client_payload.package_clean == 'true' || github.event.inputs.device != '' }}
         run: |
           cd ~/lede
           df -h .
           make package/clean
           df -h .
+      
+
+      - name: Make download and save status
+        run: |
+          ulimit -SHn 65000
+          cd ~/lede
+          while true; do make download -j && break || true; done      
 
           export AUTH="Authorization: token ${{ secrets.SEC_TOKEN }}"
           export cache_path='github.com/repos/aotsukiqx/nanopi-openwrt/releases'
@@ -179,7 +186,6 @@ jobs:
         run: |
           ulimit -SHn 65000
           cd ~/lede
-          while true; do make download -j && break || true; done
           make -j$[`nproc`+1] IGNORE_ERRORS=1
           # for debug comment out above line and enable below
           # make -j1 V=s IGNORE_ERRORS=1
