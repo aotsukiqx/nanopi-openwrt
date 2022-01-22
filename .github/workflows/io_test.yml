@@ -1,6 +1,7 @@
-name: build18.04_k5.4
+name: build_upstream
 
 on:
+  repository_dispatch:
   workflow_dispatch:
     inputs:
       device:
@@ -35,6 +36,7 @@ jobs:
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk
           sudo sysctl vm.swappiness=0
           ' &
+
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
@@ -57,6 +59,7 @@ jobs:
           else
           sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://github.com/immortalwrt/immortalwrt lede
           fi
+
       - name: Update feeds and packages
         run: |
           cd ~/lede
@@ -76,15 +79,17 @@ jobs:
           pushd luci
           ls -d */ | xargs -n1 -i diff -q {} ../lede/feeds/luci/{} | grep Only | grep lede | grep -E applications\|themes | awk '{print $4}' | xargs -n1 -i echo CONFIG_PACKAGE_{}=m > ~/lede/more_luci.txt
           popd
+
       - name: Custom configure file
         run: |
-          cd ~/lede
+          cd ~/lede && rm -rf .tmp/
           cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | sed 's/\(CONFIG_PACKAGE_luci-app-[^A-Z]*=\)y/\1m/' > .config
           find package/ -type d -name luci-app-* | rev | cut -d'/' -f1 | rev | xargs -n1 -i echo CONFIG_PACKAGE_{}=m >> .config
           cat $GITHUB_WORKSPACE/extra_packages.seed >> .config
           cat more_luci.txt >> .config
           make defconfig && sed -i -E 's/# (CONFIG_.*_COMPRESS_UPX) is not set/\1=y/' .config && make defconfig
           cat .config
+
       - name: Clean build cache
         if: ${{ github.event.client_payload.package_clean == 'true' || github.event.inputs.device != '' }}
         run: |
@@ -93,12 +98,15 @@ jobs:
           make package/clean
           df -h .
       - name: Build and deploy packages
+        timeout-minutes: 1440
         run: |
           ulimit -SHn 65000
           cd ~/lede
           while true; do make download -j && break || true; done
           make -j$[`nproc`+1] IGNORE_ERRORS=1
+          if [ ! -e ~/lede/bin/targets/*/*/*imagebuilder*xz ]; then make V=sc; fi
           mv `ls ~/lede/bin/targets/*/*/*imagebuilder*xz` ~/ib-$DEVICE.tar.xz
+
           echo "======================="
           echo "Space usage:"
           echo "======================="
@@ -114,6 +122,7 @@ jobs:
           df -h .
           make package/clean
           df -h .
+
       - name: Prepare artifact
         run: |
           cd
@@ -126,6 +135,7 @@ jobs:
           rm -rf bin tmp
           cd ..
           mv artifact $GITHUB_WORKSPACE
+
       - name: Deliver buildinfo
         uses: actions/upload-artifact@v2
         with:
@@ -133,6 +143,7 @@ jobs:
           path: ./artifact/buildinfo/
 
       - name: Save cache state
+        if: env.TG
         run: |
           cd
           sleep 60
@@ -163,10 +174,12 @@ jobs:
           if [ $? -eq 0 ]; then break; fi
           done
           set -e
+
       - name: Send tg notification
         if: env.TG
         run: |
           curl -k --data chat_id="${{secrets.TELEGRAM_CHAT_ID}}" --data "text=The ${{env.DEVICE}} build ran completed at ${{job.status}}." "https://api.telegram.org/bot${{secrets.TELEGRAM_BOT_TOKEN}}/sendMessage"
+
       - name: Debug via tmate
         uses: klever1988/ssh2actions@main
         if: ${{ failure() && env.TG }}
@@ -183,10 +196,10 @@ jobs:
   generate_slim_firmware:
     needs: build_packages
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
-      BRANCH: openwrt-18.06
+
     steps:
 
       - uses: actions/checkout@v2
@@ -208,30 +221,32 @@ jobs:
           PACKAGES=$(cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | grep CONFIG_PACKAGE | grep -v CONFIG_PACKAGE_luci-app | sed 's/CONFIG_PACKAGE_//;s/=y//' | xargs -n1 -i grep -o {} package.files | sort -u | xargs echo)
           PACKAGES="$PACKAGES `grep -o luci-i18n-opkg-zh-cn package.files || true`"
           make image PACKAGES="$PACKAGES $LUCI $LP luci-i18n-base-zh-cn luci-i18n-firewall-zh-cn" FILES="files"
+
           mkdir -p $GITHUB_WORKSPACE/release
           mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$DEVICE-slim.img.gz
           cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE-slim.img.gz > $DEVICE-slim.img.gz.md5
           gzip -dc $DEVICE-slim.img.gz | md5sum | sed "s/-/$DEVICE-slim.img/" > $DEVICE-slim.img.md5
           echo "strDate=$(TZ=UTC-8 date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "strDevice=$(echo $DEVICE | awk '{print toupper($0)}')" >> $GITHUB_ENV
+
       - name: Upload release asset
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./release/*
-          tag: ${{env.strDate}}.${{env.BRANCH}}
+          tag: ${{env.strDate}}
           file_glob: true
           overwrite: true
-          release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
+          release_name: ${{env.strDate}} 自动发布
 
   generate_firmware:
     needs: build_packages
-    if: "!cancelled()" # always()
+    if: always()
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
-      BRANCH: openwrt-18.06
+
     steps:
 
       - uses: actions/checkout@v2
@@ -256,12 +271,14 @@ jobs:
           LUCI=$(cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | grep CONFIG_PACKAGE_luci-app | grep -v docker | sed 's/CONFIG_PACKAGE_//;s/=y//' | xargs -n1 -i grep -o {} package.files | sort -u | xargs echo)
           LP=$(echo $LUCI | sed 's/-app-/-i18n-/g;s/ /\n/g' | xargs -n1 -i grep -o {}-zh-cn package.files | xargs echo)
           make image PACKAGES="$PACKAGES $LUCI $LP luci-i18n-base-zh-cn luci-i18n-firewall-zh-cn" FILES="files"
+
           mkdir -p $GITHUB_WORKSPACE/release
           mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$DEVICE.img.gz
           cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE.img.gz > $DEVICE.img.gz.md5
           gzip -dc $DEVICE.img.gz | md5sum | sed "s/-/$DEVICE.img/" > $DEVICE.img.md5
           echo "strDate=$(TZ=UTC-8 date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "strDevice=$(echo $DEVICE | awk '{print toupper($0)}')" >> $GITHUB_ENV
+
           if [[ ${{ github.event.client_payload.device || github.event.inputs.device }} == *"r1s"* ]]; then
             exit 0
           fi
@@ -273,12 +290,13 @@ jobs:
           mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$DEVICE-with-docker.img.gz
           cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE-with-docker.img.gz > $DEVICE-with-docker.img.gz.md5
           gzip -dc $DEVICE-with-docker.img.gz | md5sum | sed "s/-/$DEVICE-with-docker.img/" > $DEVICE-with-docker.img.md5
+
       - name: Upload release asset
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./release/*
-          tag: ${{env.strDate}}.${{env.BRANCH}}
+          tag: ${{env.strDate}}
           file_glob: true
           overwrite: true
-          release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
+          release_name: ${{env.strDate}} 自动发布
