@@ -1,8 +1,5 @@
 echo "Merging files..\n"
 echo "pwd:$(pwd)"
-# mkdir -p $GITHUB_WORKSPACE/files/opt/kodexplorer
-# pushd $GITHUB_WORKSPACE/files/opt/kodexplorer; wget https://static.kodcloud.com/update/download/kodbox.1.26.zip; unzip kodbox.1.26.zip; rm -r kodbox.1.26.zip; popd
-# chmod 600 $GITHUB_WORKSPACE/files/opt/kodexplorer 
 
 echo "Moving files"
 mv $GITHUB_WORKSPACE/files ./
