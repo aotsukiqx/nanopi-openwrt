@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        device: [r4s, x86]
+        device: r4s
     steps:
         - name: Trigger Compile
           run: |
