@@ -4,7 +4,7 @@ on:
   # schedule:
   #   # daily build on UTC+8 7:30
   #   - cron:  '30 18 * * 2,5'
-  repository_dispatch:
+  #repository_dispatch:
   workflow_dispatch:
     inputs:
       device:
