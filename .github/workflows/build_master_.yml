@@ -1,4 +1,4 @@
-name: build_master_
+name: build_master_x86
 
 on:
   # schedule:
