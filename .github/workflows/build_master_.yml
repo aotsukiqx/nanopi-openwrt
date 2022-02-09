@@ -5,7 +5,7 @@ on:
   #   # daily build on UTC+8 7:30
   #   - cron:  '30 18 * * 2,5'
   #repository_dispatch:
-  #workflow_dispatch:
+  workflow_dispatch:
     inputs:
       device:
         description: 'select device to build'
