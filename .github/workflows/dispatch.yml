@@ -1,8 +1,8 @@
 name: Repo Dispatcher
 on:
   schedule:
-  #   # daily build on UTC+8 7:30
-    - cron:  '30 18 * * 2,5'
+    # daily build on UTC+8 7:30
+    # - cron:  '30 18 * * 2,5'
   workflow_dispatch:
     inputs:
       package_clean:
@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        device: r4s
+        device: [r4s, x86]
     steps:
         - name: Trigger Compile
           run: |
