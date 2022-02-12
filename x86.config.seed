@@ -43,7 +43,9 @@ CONFIG_PACKAGE_luci-theme-argon=y
 CONFIG_PACKAGE_collectd-mod-ping=y
 CONFIG_PACKAGE_collectd-mod-thermal=y
 
-
+CONFIG_PACKAGE_kmod-usb-hid=y
+CONFIG_PACKAGE_apcupsd=y
+CONFIG_PACKAGE_collectd-mod-apcups=y
 
 CONFIG_PACKAGE_kmod-ath9k-htc=y
 CONFIG_PACKAGE_kmod-igc=y
