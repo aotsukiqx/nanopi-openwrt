@@ -43,8 +43,8 @@ jobs:
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk
           sudo sysctl vm.swappiness=0
           cd
-          umount lede
-          rm -rf  ib-$DEVICE.tar.xz lede.* lede luci
+          umount lede || true
+          rm -rf  ib-$DEVICE.tar.xz lede.* lede luci || true
 
       - uses: actions/checkout@v2
         with:
