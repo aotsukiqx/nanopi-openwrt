@@ -44,7 +44,7 @@ jobs:
           sudo sysctl vm.swappiness=0
           cd
           umount lede
-          rm -rf  ib-$DEVICE.tar.xz lede.* lede
+          rm -rf  ib-$DEVICE.tar.xz lede.* lede luci
 
       - uses: actions/checkout@v2
         with:
