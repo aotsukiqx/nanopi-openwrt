@@ -63,7 +63,7 @@ jobs:
           mkdir ~/lede || true
           cd ~
           sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://github.com/immortalwrt/immortalwrt lede
-          # fi
+          fi
 
       - name: Update feeds and packages
         run: |
