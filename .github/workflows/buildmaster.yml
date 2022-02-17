@@ -57,7 +57,7 @@ jobs:
           BRANCH="master"
           if [ -d 'lede/.git' ]; then
           cd ~
-          sudo chown $USER:$(id -gn) lede
+          sudo chown -R $USER:$(id -gn) lede
           cd lede && rm -f zerospace && git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
           git fetch && git reset --hard origin/$BRANCH
           else
