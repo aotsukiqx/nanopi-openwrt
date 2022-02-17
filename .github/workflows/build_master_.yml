@@ -74,7 +74,6 @@ jobs:
           git fetch && git reset --hard origin/$BRANCH
           else
           echo "Checkout imortalwrt and chown"
-          mkdir ~/lede || true
           cd ~
           sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://github.com/immortalwrt/immortalwrt lede
           fi
