@@ -68,7 +68,9 @@ jobs:
           mkdir lede && sudo mount -o nossd,compress=zstd $LOOP_DEVICE lede
           BRANCH="master"
           if [ -d 'lede/.git' ]; then
-          cd lede && rm -f zerospace && git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
+          cd ~
+          sudo chown $USER:$(id -gn) lede
+          cd lede && sudo rm -f zerospace && git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
           git fetch && git reset --hard origin/$BRANCH
           else
           echo "Checkout imortalwrt and chown"
