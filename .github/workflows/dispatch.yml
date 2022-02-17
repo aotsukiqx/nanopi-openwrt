@@ -1,6 +1,6 @@
 name: Repo Dispatcher
 on:
-  schedule:
+  # schedule:
     # daily build on UTC+8 7:30
     # - cron:  '30 18 * * 2,5'
   workflow_dispatch:
