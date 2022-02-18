@@ -1,4 +1,4 @@
-name: build_master_self_hosted
+name: build_selfhosted_gitee
 
 on:
   # schedule:

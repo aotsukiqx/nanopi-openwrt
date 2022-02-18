@@ -17,7 +17,7 @@ sudo sysctl vm.swappiness=0
 
 echo "Checkout..."
 cd $GITHUB_WORKSPACE
-curl -sL https://raw.githubusercontent.com/klever1988/nanopi-openwrt/zstd-bin/zstd | sudo tee /usr/bin/zstd > /dev/null
+curl -sL https://raw.githubusercontent.com/aotsukiqx/nanopi-openwrt/zstd-bin/zstd | sudo tee /usr/bin/zstd > /dev/null
 for i in {1..20}
 do
 curl -sL --fail https://github.com/klever1988/sshactions/releases/download/cache/lede.$DEVICE.img.zst.0$i || break
