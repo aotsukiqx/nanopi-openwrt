@@ -62,7 +62,7 @@ jobs:
           for i in {1..20}
           do
             if [[ "$DEVICE"=="r4s" && "$DEVICE"=="x86" ]]; then
-              echo "Using ib: $DEVICE"
+              echo "Using image: $DEVICE"
               curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/lean.$DEVICE.img.zst.0$i || break
             else
                break
@@ -113,9 +113,6 @@ jobs:
           cd ~/lean && rm -rf .tmp/
           sed -i 's/KERNEL_PATCHVER\=5\.4/KERNEL_PATCHVER\=5\.10/g' target/linux/rockchip/Makefile
           sed -i 's/KERNEL_TESTING_PATCHVER\=5\.10/KERNEL_TESTING_PATCHVER\=5\.15/g' target/linux/rockchip/Makefile
-          if [[ "$TESTKNVER"=='true' ]]; then
-          sed -i 's/KERNEL_PATCHVER\=5\.10/KERNEL_PATCHVER\=5\.15/g' target/linux/x86/Makefile
-          fi
           cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | sed 's/\(CONFIG_PACKAGE_luci-app-[^A-Z]*=\)y/\1m/' > .config
           find package/ -type d -name luci-app-* | rev | cut -d'/' -f1 | rev | xargs -n1 -i echo CONFIG_PACKAGE_{}=m >> .config
           cat $GITHUB_WORKSPACE/extra_packages.seed >> .config
@@ -124,7 +121,11 @@ jobs:
           # cp $GITHUB_WORKSPACE/vermagic ./vermagic
           # sed -i 's/grep[ ].*\/\.vermagic/cp \$\(TOPDIR\)\/vermagic \$\(LINUX_DIR\)\/\.vermagic/' include/kernel-defaults.mk
           # sed -i 's/STAMP_BUILT\:\=.*$(MKHASH)[ ]md5)/cp \$\(TOPDIR\)\/vermagic \$\(LINUX_DIR\)\/\.vermagic/' package/kernel/linux/Makefile
-          make defconfig && sed -i -E 's/# (CONFIG_.*_COMPRESS_UPX) is not set/\1=y/' .config && make defconfig
+          make defconfig && sed -i -E 's/# (CONFIG_.*_COMPRESS_UPX) is not set/\1=y/' .config 
+          if [[ "$TESTKNVER"=='true' ]]; then
+          sed -i 's/CONFIG_LINUX_5_10\=y/CONFIG_LINUX_5_15\=y/g' .config
+          fi
+          make defconfig
           cat .config
 
       - name: Clean build cache
