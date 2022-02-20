@@ -49,7 +49,7 @@ jobs:
           sudo sysctl vm.swappiness=0
           cd
           umount lean || true
-          rm -rf  iblean-$DEVICE.tar.xz lean.* lean luci || true
+          rm -rf  iblean-$DEVICE.tar.xz lean.* lean luci bin || true
 
       - uses: actions/checkout@v2
         with:
@@ -172,6 +172,7 @@ jobs:
           cp -rf .config ../artifact/buildinfo/
           echo "strDate=$(TZ=UTC-8 date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "strDevice=$(echo $DEVICE | awk '{print toupper($0)}')" >> $GITHUB_ENV
+          mv bin ~/
           rm -rf bin tmp
           cd ..
           mv artifact $GITHUB_WORKSPACE
