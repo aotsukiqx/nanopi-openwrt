@@ -23,25 +23,27 @@ mv $GITHUB_WORKSPACE/patches/99-disallow-aaaa.patch `find package/ -follow -type
 
 sed -i 's/5.0/1.0/' .ccache/ccache.conf || true
 
-if [ $BRANCH=='master' ]; then
+if [[ "$BRANCH"=='master' && !$BUILDLEAN ]]; then
 
   git checkout target/linux/rockchip
   git checkout target/linux/x86
   git revert --no-commit -X theirs 91eed5d9fb74e6c740291362ba12e11a2222a9fd
 
   echo '# CONFIG_KCSAN is not set' >> target/linux/x86/config-5.10
-  echo '# CONFIG_CRYPTO_GHASH_ARM_CE is not set' >> target/linux/sunxi/cortexa7/config-5.10
-  echo '# CONFIG_CRYPTO_CRCT10DIF_ARM_CE is not set' >> target/linux/sunxi/cortexa7/config-5.10
-  echo '# CONFIG_SUN50I_IOMMU is not set' >> target/linux/sunxi/cortexa7/config-5.10
-  echo '# CONFIG_UCLAMP_TASK is not set' >> target/linux/sunxi/config-5.10
+  echo '# CONFIG_CRYPTO_GHASH_ARM_CE is not set' >> target/linux/sunxi/cortexa7/config-5.4
+  echo '# CONFIG_CRYPTO_CRCT10DIF_ARM_CE is not set' >> target/linux/sunxi/cortexa7/config-5.4
+  echo '# CONFIG_SUN50I_IOMMU is not set' >> target/linux/sunxi/cortexa7/config-5.4
+  echo '# CONFIG_UCLAMP_TASK is not set' >> target/linux/sunxi/config-5.4
 
   # fix po path for snapshot
   find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -f {}/zh_Hans; ln -sf zh-cn {}/zh_Hans"
 
-  # remove non-exist package from x86 profile
-  #sed -i 's/kmod-i40evf//' target/linux/x86/Makefile
+  if [[ ! $BUILDLEAN ]]; then
+    # remove non-exist package from x86 profile
+    sed -i 's/kmod-i40evf//' target/linux/x86/Makefile
+  fi
 
-  if [[ $DEVICE -ne 'r4s' || $DEVICE -ne 'r2s' || $DEVICE -ne 'r1s' || $DEVICE -ne 'r2c' ]]; then
+  if [[ "$DEVICE"=='r4s' || "$DEVICE"=='r2s' || "$DEVICE"=='r1s' || "$DEVICE"=='r2c' ]]; then
     # enable r2s oled plugin by default
     sed -i "s/enable '0'/enable '1'/" `find package/ -follow -type f -path '*/luci-app-oled/root/etc/config/oled'`
 
@@ -75,11 +77,13 @@ if [ $BRANCH=='master' ]; then
     git apply 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
     rm 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
   fi
+fi
 
-  #this is a ugly fix
-  sed -i '/procd-ujail/d' include/target.mk
-  echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
+#this is a ugly fix
+sed -i '/procd-ujail/d' include/target.mk
+echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
 
+if [[ ! $BUILDLEAN ]]; then
   # bring the ethinfo back
   if [ -d 'package/emortal/autocore/files/x86' ]; then
     cd package/emortal/autocore/files/x86
@@ -90,7 +94,16 @@ if [ $BRANCH=='master' ]; then
     sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DIR) $(1)/www/luci-static/resources/view/status/include' $mf_autcore
     sed -i '/arm\/cpuinfo/a\\t$(INSTALL_BIN) ./files/x86/ethinfo $(1)/sbin/ethinfo' $mf_autcore
   fi
-
+else
+  if [ -d 'package/lean/autocore/files/x86' ]; then
+    cd package/lean/autocore/files/x86
+    cp rpcd_luci rpcd_10_system.js rpcd_luci-mod-status.json ../arm
+    cd -
+    mf_autcore=`find package/ -path '*/autocore/Makefile'`
+    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DATA) ./files/x86/rpcd_21_ethinfo.js $(1)/www/luci-static/resources/view/status/include/21_ethinfo.js' $mf_autcore
+    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DIR) $(1)/www/luci-static/resources/view/status/include' $mf_autcore
+    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_BIN) ./files/x86/ethinfo $(1)/sbin/ethinfo' $mf_autcore
+  fi
 fi
 
 # inject the firmware version

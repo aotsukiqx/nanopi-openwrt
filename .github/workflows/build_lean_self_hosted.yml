@@ -7,6 +7,10 @@ on:
   #repository_dispatch:
   workflow_dispatch:
     inputs:
+      testknver:
+        description: 'use test kernel version?'
+        default: false
+        required: false
       device:
         description: 'select device to build'
         default: 'x86'
@@ -22,6 +26,8 @@ jobs:
     name: Build ${{ github.event.client_payload.device || github.event.inputs.device }} packages
     runs-on: self-hosted
     env:
+      BUILDLEAN: true
+      TESTKNVER: ${{ github.event.client_payload.testknver || github.event.inputs.testknver }}
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
       BRANCH: ${{ github.event.client_payload.branch || github.event.inputs.branch }}
       TG: ${{ secrets.TELEGRAM_BOT_TOKEN }}
