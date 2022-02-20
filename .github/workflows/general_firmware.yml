@@ -8,7 +8,7 @@ on:
     inputs:
       buildlean:
         description: 'select build source'
-        default: false
+        default: 'false'
         required: false
       device:
         description: 'select device to build'
@@ -34,7 +34,7 @@ jobs:
           fetch-depth: 1
 
       - name: Generate firmware immortal
-        if: ${{ github.event.client_payload.buildlean==false || github.event.inputs.buildlean==false }}
+        if: ${{ github.event.client_payload.buildlean=='false' || github.event.inputs.buildlean=='false' }}
         run: |
           sudo apt update && sudo apt install qemu-utils
           sudo sysctl vm.swappiness=0
@@ -58,7 +58,7 @@ jobs:
           echo "strDevice=$(echo $DEVICE | awk '{print toupper($0)}')" >> $GITHUB_ENV
 
       - name: Generate firmware lean
-        if: ${{ github.event.client_payload.buildlean==true || github.event.inputs.buildlean==true }}
+        if: ${{ github.event.client_payload.buildlean=='true' || github.event.inputs.buildlean=='true' }}
         run: |
           sudo apt update && sudo apt install qemu-utils
           sudo sysctl vm.swappiness=0
@@ -105,7 +105,7 @@ jobs:
           fetch-depth: 1
 
       - name: Generate firmware immortal
-        if: ${{ github.event.client_payload.buildlean==false || github.event.inputs.buildlean==false }}
+        if: ${{ github.event.client_payload.buildlean=='false' || github.event.inputs.buildlean=='false' }}
         run: |
           sudo apt update && sudo apt install qemu-utils
           sudo sysctl vm.swappiness=0
@@ -145,7 +145,7 @@ jobs:
           gzip -dc $DEVICE-with-docker.img.gz | md5sum | sed "s/-/$DEVICE-with-docker.img/" > $DEVICE-with-docker.img.md5
 
       - name: Generate firmware immortal
-        if: ${{ github.event.client_payload.buildlean==true || github.event.inputs.buildlean==true }}
+        if: ${{ github.event.client_payload.buildlean=='true' || github.event.inputs.buildlean=='true' }}
         run: |
           sudo apt update && sudo apt install qemu-utils
           sudo sysctl vm.swappiness=0
