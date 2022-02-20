@@ -144,7 +144,7 @@ jobs:
           cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE-with-docker.img.gz > $DEVICE-with-docker.img.gz.md5
           gzip -dc $DEVICE-with-docker.img.gz | md5sum | sed "s/-/$DEVICE-with-docker.img/" > $DEVICE-with-docker.img.md5
 
-      - name: Generate firmware immortal
+      - name: Generate firmware lean
         if: ${{ github.event.client_payload.buildlean=='true' || github.event.inputs.buildlean=='true' }}
         run: |
           sudo apt update && sudo apt install qemu-utils
