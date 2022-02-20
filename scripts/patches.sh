@@ -81,13 +81,15 @@ if [ $BRANCH=='master' ]; then
   echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
 
   # bring the ethinfo back
-  cd package/emortal/autocore/files/x86
-  cp rpcd_luci rpcd_10_system.js rpcd_luci-mod-status.json ../arm
-  cd -
-  mf_autcore=`find package/ -path '*/autocore/Makefile'`
-  sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DATA) ./files/x86/rpcd_21_ethinfo.js $(1)/www/luci-static/resources/view/status/include/21_ethinfo.js' $mf_autcore
-  sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DIR) $(1)/www/luci-static/resources/view/status/include' $mf_autcore
-  sed -i '/arm\/cpuinfo/a\\t$(INSTALL_BIN) ./files/x86/ethinfo $(1)/sbin/ethinfo' $mf_autcore
+  if [ -d 'package/emortal/autocore/files/x86' ]; then
+    cd package/emortal/autocore/files/x86
+    cp rpcd_luci rpcd_10_system.js rpcd_luci-mod-status.json ../arm
+    cd -
+    mf_autcore=`find package/ -path '*/autocore/Makefile'`
+    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DATA) ./files/x86/rpcd_21_ethinfo.js $(1)/www/luci-static/resources/view/status/include/21_ethinfo.js' $mf_autcore
+    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DIR) $(1)/www/luci-static/resources/view/status/include' $mf_autcore
+    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_BIN) ./files/x86/ethinfo $(1)/sbin/ethinfo' $mf_autcore
+  fi
 
 fi
 
