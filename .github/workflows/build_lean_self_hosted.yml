@@ -124,8 +124,7 @@ jobs:
           # cp $GITHUB_WORKSPACE/vermagic ./vermagic
           # sed -i 's/grep[ ].*\/\.vermagic/cp \$\(TOPDIR\)\/vermagic \$\(LINUX_DIR\)\/\.vermagic/' include/kernel-defaults.mk
           # sed -i 's/STAMP_BUILT\:\=.*$(MKHASH)[ ]md5)/cp \$\(TOPDIR\)\/vermagic \$\(LINUX_DIR\)\/\.vermagic/' package/kernel/linux/Makefile
-          make defconfig && sed -i -E 's/# (CONFIG_.*_COMPRESS_UPX) is not set/\1=y/' .config
-          sed -i 's/\#[ ]CONFIG_TARGET_ROOTFS_EXT4FS.*/CONFIG_TARGET_ROOTFS_EXT4FS=y/g' .config && make defconfig
+          make defconfig && sed -i -E 's/# (CONFIG_.*_COMPRESS_UPX) is not set/\1=y/' .config && make defconfig
           cat .config
 
       - name: Clean build cache
