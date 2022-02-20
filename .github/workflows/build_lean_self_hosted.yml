@@ -42,8 +42,8 @@ jobs:
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk
           sudo sysctl vm.swappiness=0
           cd
-          umount lede || true
-          rm -rf  iblean-$DEVICE.tar.xz lede.* lede luci || true
+          umount lean || true
+          rm -rf  iblean-$DEVICE.tar.xz lean.* lean luci || true
 
       - uses: actions/checkout@v2
         with:
@@ -61,25 +61,25 @@ jobs:
             else
                break
             fi
-          done | zstdmt -d -o lede.img || (truncate -s 40g lede.img && mkfs.btrfs -M lede.img)
+          done | zstdmt -d -o lean.img || (truncate -s 40g lean.img && mkfs.btrfs -M lean.img)
           LOOP_DEVICE=$(losetup -f) && echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
-          sudo losetup -P --direct-io $LOOP_DEVICE lede.img
-          mkdir lede && sudo mount -o nossd,compress=zstd $LOOP_DEVICE lede
+          sudo losetup -P --direct-io $LOOP_DEVICE lean.img
+          mkdir lean && sudo mount -o nossd,compress=zstd $LOOP_DEVICE lean
           BRANCH="master"
-          if [ -d 'lede/.git' ]; then
+          if [ -d 'lean/.git' ]; then
           cd ~
-          sudo chown $USER:$(id -gn) lede
-          cd lede && sudo rm -f zerospace && git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
+          sudo chown $USER:$(id -gn) lean
+          cd lean && sudo rm -f zerospace && git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
           git fetch && git reset --hard origin/$BRANCH
           else
           echo "Checkout imortalwrt and chown"
           cd ~
-          sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://github.com/coolsnowwolf/lede lede
+          sudo chown $USER:$(id -gn) lean && git clone -b $BRANCH --single-branch https://github.com/coolsnowwolf/lede lean
           fi
 
       - name: Update feeds and packages
         run: |
-          cd ~/lede
+          cd ~/lean
           if [ -d 'feeds' ]; then
             pushd feeds/packages; git restore .; popd
             pushd feeds/luci; git restore .; popd
@@ -99,12 +99,12 @@ jobs:
           # sed -i 's/local[ ]blkio_weight[ ]\=[ ]data.blkio_weight[ ]or[ ]500/local blkio_weight \= nil/g' applications/luci-app-dockerman/luasrc/model/cbi/dockerman/newcontainer.lua
           # sed -i 's/o\.placeholder[ ]\=[ ]\"500\"/o\.placeholder \= nil/g' applications/luci-app-dockerman/luasrc/model/cbi/dockerman/newcontainer.lua
           # sed -i 's/default_config\.blkio_weight[ ]\=[ ]create_body\.HostConfig\.BlkioWeight/default_config\.blkio_weight \= nil/g' applications/luci-app-dockerman/luasrc/model/cbi/dockerman/newcontainer.lua
-          ls -d */ | xargs -n1 -i diff -q {} ../lede/feeds/luci/{} | grep Only | grep lede | grep -E applications\|themes | awk '{print $4}' | xargs -n1 -i echo CONFIG_PACKAGE_{}=m > ~/lede/more_luci.txt
+          ls -d */ | xargs -n1 -i diff -q {} ../lean/feeds/luci/{} | grep Only | grep lean | grep -E applications\|themes | awk '{print $4}' | xargs -n1 -i echo CONFIG_PACKAGE_{}=m > ~/lean/more_luci.txt
           popd
 
       - name: Custom configure file
         run: |
-          cd ~/lede && rm -rf .tmp/
+          cd ~/lean && rm -rf .tmp/
           sed -i 's/KERNEL_PATCHVER\=5\.4/KERNEL_PATCHVER\=5\.10/g' target/linux/rockchip/Makefile
           sed -i 's/KERNEL_TESTING_PATCHVER\=5\.10/KERNEL_TESTING_PATCHVER\=5\.15/g' target/linux/rockchip/Makefile
           sed -i 's/KERNEL_PATCHVER\=5\.10/KERNEL_PATCHVER\=5\.15/g' target/linux/x86/Makefile
@@ -123,7 +123,7 @@ jobs:
       - name: Clean build cache
         if: ${{ github.event.client_payload.package_clean == 'true' || github.event.inputs.device != '' }}
         run: |
-          cd ~/lede
+          cd ~/lean
           df -h .
           make package/clean
           df -h .
@@ -132,12 +132,12 @@ jobs:
         timeout-minutes: 1440
         run: |
           ulimit -SHn 65000
-          cd ~/lede
+          cd ~/lean
           while true; do make download -j && break || true; done
           make -j$[`nproc`+1] IGNORE_ERRORS=1
           # make -j1 V=s IGNORE_ERRORS=1
-          if [ ! -e ~/lede/bin/targets/*/*/*imagebuilder*xz ]; then make V=sc; fi
-          mv `ls ~/lede/bin/targets/*/*/*imagebuilder*xz` ~/iblean-$DEVICE.tar.xz
+          if [ ! -e ~/lean/bin/targets/*/*/*imagebuilder*xz ]; then make V=sc; fi
+          mv `ls ~/lean/bin/targets/*/*/*imagebuilder*xz` ~/iblean-$DEVICE.tar.xz
 
           echo "======================="
           echo "Space usage:"
@@ -151,7 +151,7 @@ jobs:
       - name: Clean build cache
         if: ${{ github.event.client_payload.package_clean == 'true' }}
         run: |
-          cd ~/lede
+          cd ~/lean
           df -h .
           make package/clean
           df -h .
@@ -160,7 +160,7 @@ jobs:
         run: |
           cd
           mkdir -p ./artifact/buildinfo
-          cd lede
+          cd lean
           cp -rf $(find ./bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") ../artifact/buildinfo/
           cp -rf .config ../artifact/buildinfo/
           echo "strDate=$(TZ=UTC-8 date +%Y-%m-%d)" >> $GITHUB_ENV
@@ -179,26 +179,26 @@ jobs:
         run: |
           cd
           sleep 60
-          sudo mount -o remount,compress=no,nodatacow,nodatasum lede
-          cd lede/; pv /dev/zero > zerospace || true; sync; rm -f zerospace; cd -
+          sudo mount -o remount,compress=no,nodatacow,nodatasum lean
+          cd lean/; pv /dev/zero > zerospace || true; sync; rm -f zerospace; cd -
           sleep 60
-          sudo umount lede
+          sudo umount lean
           sudo losetup -d $LOOP_DEVICE
           export AUTH="Authorization: token ${{ secrets.SEC_TOKEN }}"
           export cache_path='github.com/repos/aotsukiqx/nanopi-openwrt/releases'
           export cache_repo_id='56878497'
-          #zstdmt -c --adapt --long lede.img | parallel --wc --block 1.99G --pipe \
+          #zstdmt -c --adapt --long lean.img | parallel --wc --block 1.99G --pipe \
           #'curl -s --data-binary @- -H "$AUTH" -H "Content-Type: application/octet-stream" https://uploads.$cache_path/$cache_repo_id/assets?name=lean.'$DEVICE'.img.zst.0{#} > /dev/null'
-          zstdmt -c --long lede.img | split --numeric=1 -b 2000m - lede.$DEVICE.img.zst.
+          zstdmt -c --long lean.img | split --numeric=1 -b 2000m - lean.$DEVICE.img.zst.
           #for f in *img.zst*
           #do
           #  while true; do curl --data-binary @$f -H "$AUTH" -H 'Content-Type: application/octet-stream' "https://uploads.$cache_path/$cache_repo_id/assets?name=$f" && break || true; done
           #done
           while true; do
           ret=$(curl -sH "$AUTH" "https://api.$cache_path/tags/ib_cache")
-          echo $ret | jq -r '.assets[] | select(.name | contains ("'$DEVICE'.img")).id' | \
+          echo $ret | jq -r '.assets[] | select(.name | contains ("lean.'$DEVICE'.img")).id' | \
           xargs -n1 -i curl -X DELETE -H "$AUTH" "https://api.$cache_path/assets/{}"
-          echo $ret | jq -r '.assets[] | select(.name == "ib-'$DEVICE'.tar.xz").id' | \
+          echo $ret | jq -r '.assets[] | select(.name == "iblean-'$DEVICE'.tar.xz").id' | \
           xargs -n1 -i curl -X DELETE -H "$AUTH" "https://api.$cache_path/assets/{}"
           ls *img.zst* iblean-$DEVICE.tar.xz | parallel --wc 'while true; do curl -T {} -H "$AUTH" -H "Content-Type: application/octet-stream" "https://uploads.$cache_path/$cache_repo_id/assets?name={}" && break || true; done'
           set +e
