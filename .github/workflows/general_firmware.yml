@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       buildlean:
-        description: 'select build source'
+        description: 'buld lean?'
         default: 'false'
         required: false
       device:
