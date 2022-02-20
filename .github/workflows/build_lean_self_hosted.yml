@@ -9,7 +9,7 @@ on:
     inputs:
       testknver:
         description: 'use test kernel version?'
-        default: false
+        default: 'true'
         required: false
       device:
         description: 'select device to build'
@@ -113,7 +113,7 @@ jobs:
           cd ~/lean && rm -rf .tmp/
           sed -i 's/KERNEL_PATCHVER\=5\.4/KERNEL_PATCHVER\=5\.10/g' target/linux/rockchip/Makefile
           sed -i 's/KERNEL_TESTING_PATCHVER\=5\.10/KERNEL_TESTING_PATCHVER\=5\.15/g' target/linux/rockchip/Makefile
-          if [[ $TESTKNVER ]]; then
+          if [[ "$TESTKNVER"=='true' ]]; then
           sed -i 's/KERNEL_PATCHVER\=5\.10/KERNEL_PATCHVER\=5\.15/g' target/linux/x86/Makefile
           fi
           cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | sed 's/\(CONFIG_PACKAGE_luci-app-[^A-Z]*=\)y/\1m/' > .config
