@@ -86,12 +86,12 @@ jobs:
       - name: Update feeds and packages
         run: |
           cd ~/lean
-          if [ -d 'feeds' ]; then
+          #if [ -d 'feeds' ]; then
             # pushd feeds/packages; git restore .; popd
             # pushd feeds/luci; git restore .; popd
             # pushd feeds/routing.tmp; git restore .; popd
             # pushd feeds/telephony.tmp; git restore .; popd
-          fi
+          #fi
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           echo "Merge packages & patches..."
