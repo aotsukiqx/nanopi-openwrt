@@ -87,10 +87,10 @@ jobs:
         run: |
           cd ~/lean
           if [ -d 'feeds' ]; then
-            pushd feeds/packages; git restore . || true; popd
-            pushd feeds/luci; git restore . || true; popd
-            pushd feeds/routing.tmp; git restore . || true; popd
-            pushd feeds/telephony.tmp; git restore . || true; popd
+            # pushd feeds/packages; git restore .; popd
+            # pushd feeds/luci; git restore .; popd
+            # pushd feeds/routing.tmp; git restore .; popd
+            # pushd feeds/telephony.tmp; git restore .; popd
           fi
           ./scripts/feeds update -a
           ./scripts/feeds install -a
