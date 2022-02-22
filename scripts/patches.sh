@@ -38,7 +38,7 @@ if [[ "$BRANCH"=='master' && !$BUILDLEAN ]]; then
   echo "fix po path for snapshot"
   find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -rf {}/zh_Hans; ln -sf zh-cn {}/zh_Hans" || true
 
-  if [[ ! $BUILDLEAN ]]; then
+  if [ ! $BUILDLEAN ]; then
     echo "remove non-exist package from x86 profile"
     sed -i 's/kmod-i40evf//' target/linux/x86/Makefile
   fi
