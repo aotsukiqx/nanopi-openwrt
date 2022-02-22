@@ -25,7 +25,7 @@ mv $GITHUB_WORKSPACE/patches/99-disallow-aaaa.patch `find package/ -follow -type
 
 sed -i 's/5.0/1.0/' .ccache/ccache.conf || true
 
-if [[ "$BRANCH"=='master' ]]; then
+if [[ "$BRANCH" == 'master' ]]; then
 
   git checkout target/linux/rockchip
   git checkout target/linux/x86
@@ -40,12 +40,12 @@ if [[ "$BRANCH"=='master' ]]; then
   echo "fix po path for snapshot"
   find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -rf {}/zh_Hans; ln -sf zh-cn {}/zh_Hans" || true
 
-  if [ "$BUILDLEAN"!='true' ]; then
+  if [ "$BUILDLEAN" != 'true' ]; then
     echo "remove non-exist package from x86 profile"
     sed -i 's/kmod-i40evf//' target/linux/x86/Makefile
   fi
 
-  if [[ "$DEVICE"=='r4s' || "$DEVICE"=='r2s' || "$DEVICE"=='r1s' || "$DEVICE"=='r2c' ]]; then
+  if [[ "$DEVICE" == 'r4s' || "$DEVICE" == 'r2s' || "$DEVICE" == 'r1s' || "$DEVICE" == 'r2c' ]]; then
     echo "enable r2s oled plugin by default"
     sed -i "s/enable '0'/enable '1'/" `find package/ -follow -type f -path '*/luci-app-oled/root/etc/config/oled'`
 
@@ -85,7 +85,7 @@ fi
 sed -i '/procd-ujail/d' include/target.mk
 echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
 
-if [[ "$BUILDLEAN"!='true' ]]; then
+if [[ "$BUILDLEAN" != 'true' ]]; then
   echo "bring the ethinfo back"
   if [ -d 'package/emortal/autocore/files/x86' ]; then
     cd package/emortal/autocore/files/x86
