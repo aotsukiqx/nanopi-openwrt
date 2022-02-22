@@ -37,10 +37,11 @@ if [[ "$BRANCH" == 'master' ]]; then
   echo '# CONFIG_SUN50I_IOMMU is not set' >> target/linux/sunxi/cortexa7/config-5.4
   echo '# CONFIG_UCLAMP_TASK is not set' >> target/linux/sunxi/config-5.4
 
+  if [[ "$BUILDLEAN" != 'true' ]]
   echo "fix po path for snapshot"
   find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -rf {}/zh_Hans; ln -sf zh-cn {}/zh_Hans" || true
 
-  if [ "$BUILDLEAN" != 'true' ]; then
+  if [[ "$BUILDLEAN" != 'true' ]]; then
     echo "remove non-exist package from x86 profile"
     sed -i 's/kmod-i40evf//' target/linux/x86/Makefile
   fi
@@ -129,8 +130,11 @@ esac
 done
 
 echo "little optimization argon css"
-css_file=`find package/ -follow -type f -path '*/argon/css/cascade.css'`
-line_number_h6=`grep -m1 -n 'h6 {' $css_file | cut -d: -f1`
+if [[ "$BUILDLEAN" != 'true']]; then
+  css_file=`find package/ -follow -type f -path '*/argon/css/cascade.css'`
+fi
+  css_file=`find package/ -follow -type f -path '*/argon/css/style.css'`
+  line_number_h6=`grep -m1 -n 'h6 {' $css_file | cut -d: -f1`
 if [[ ! -z "$line_number_h6" ]]; then
   sed -i $line_number_h6',+10 s/font-weight: normal/font-weight: bold/' $css_file
 fi
