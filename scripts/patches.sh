@@ -1,3 +1,5 @@
+echo “DEVICE: $DEVICE, GITHUB_WORKSPACE: $GITHUB_WORKSPACE, BRANCH: $BRANCH, BUILDLEAN: $BUILDLEAN”
+
 config_file_turboacc=`find package/ -follow -type f -path '*/luci-app-turboacc/root/etc/config/turboacc'`
 sed -i "s/option hw_flow '1'/option hw_flow '0'/" $config_file_turboacc
 sed -i "s/option sfe_flow '1'/option sfe_flow '0'/" $config_file_turboacc
@@ -130,7 +132,7 @@ echo "little optimization argon css"
 css_file=`find package/ -follow -type f -path '*/argon/css/cascade.css'`
 line_number_h6=`grep -m1 -n 'h6 {' $css_file | cut -d: -f1`
 if [[ ! -z "$line_number_h6" ]]; then
-sed -i $line_number_h6',+10 s/font-weight: normal/font-weight: bold/' $css_file
+  sed -i $line_number_h6',+10 s/font-weight: normal/font-weight: bold/' $css_file
 fi
 
 echo "set default theme to argon"
