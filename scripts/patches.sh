@@ -23,11 +23,11 @@ mv $GITHUB_WORKSPACE/patches/99-disallow-aaaa.patch `find package/ -follow -type
 
 sed -i 's/5.0/1.0/' .ccache/ccache.conf || true
 
-if [[ "$BRANCH"=='master' && !$BUILDLEAN ]]; then
+if [[ "$BRANCH"=='master' ]]; then
 
   git checkout target/linux/rockchip
   git checkout target/linux/x86
-  git revert --no-commit -X theirs 91eed5d9fb74e6c740291362ba12e11a2222a9fd
+  #git revert --no-commit -X theirs 91eed5d9fb74e6c740291362ba12e11a2222a9fd
 
   echo '# CONFIG_KCSAN is not set' >> target/linux/x86/config-5.10
   echo '# CONFIG_CRYPTO_GHASH_ARM_CE is not set' >> target/linux/sunxi/cortexa7/config-5.4
