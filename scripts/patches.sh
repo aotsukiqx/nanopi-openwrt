@@ -35,22 +35,22 @@ if [[ "$BRANCH"=='master' && !$BUILDLEAN ]]; then
   echo '# CONFIG_SUN50I_IOMMU is not set' >> target/linux/sunxi/cortexa7/config-5.4
   echo '# CONFIG_UCLAMP_TASK is not set' >> target/linux/sunxi/config-5.4
 
-  # fix po path for snapshot
+  echo "fix po path for snapshot"
   find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -rf {}/zh_Hans; ln -sf zh-cn {}/zh_Hans" || true
 
   if [[ ! $BUILDLEAN ]]; then
-    # remove non-exist package from x86 profile
+    echo "remove non-exist package from x86 profile"
     sed -i 's/kmod-i40evf//' target/linux/x86/Makefile
   fi
 
   if [[ "$DEVICE"=='r4s' || "$DEVICE"=='r2s' || "$DEVICE"=='r1s' || "$DEVICE"=='r2c' ]]; then
-    # enable r2s oled plugin by default
+    echo "enable r2s oled plugin by default"
     sed -i "s/enable '0'/enable '1'/" `find package/ -follow -type f -path '*/luci-app-oled/root/etc/config/oled'`
 
-    # swap the network adapter driver to r8168 to gain better performance for r4s
+    echo "swap the network adapter driver to r8168 to gain better performance for r4s"
     sed -i 's/r8169/r8168/' target/linux/rockchip/image/armv8.mk
 
-    # change the voltage value for over-clock stablization
+    echo "change the voltage value for over-clock stablization"
     sed -i 's/1400000/1450000/' target/linux/rockchip/patches-5.10/991-arm64-dts-rockchip-add-more-cpu-operating-points-for.patch
     config_file_cpufreq=`find package/ -follow -type f -path '*/luci-app-cpufreq/root/etc/config/cpufreq'`
     truncate -s-1 $config_file_cpufreq
@@ -59,20 +59,20 @@ if [[ "$BRANCH"=='master' && !$BUILDLEAN ]]; then
     echo -e "\toption maxfreq0 '1512000'\n" >> $config_file_cpufreq
 
     git clean -f -d target/linux/rockchip
-    # enable the gpu for device 'r2s'|'r2c'|'r4s'|'r1p'
+    echo  "enable the gpu for device 'r2s'|'r2c'|'r4s'|'r1p'"
     wget https://github.com/coolsnowwolf/lede/raw/757e42d70727fe6b937bb31794a9ad4f5ce98081/target/linux/rockchip/config-default -NP target/linux/rockchip/
     wget https://github.com/coolsnowwolf/lede/commit/f341ef96fe4b509a728ba1281281da96bac23673.patch
     sed -i 's/config-5.4/config-5.10/g' f341ef96fe4b509a728ba1281281da96bac23673.patch
     git apply f341ef96fe4b509a728ba1281281da96bac23673.patch
     rm f341ef96fe4b509a728ba1281281da96bac23673.patch
 
-    # enable fan control
+    echo "enable fan control"
     wget https://github.com/friendlyarm/friendlywrt/commit/cebdc1f94dcd6363da3a5d7e1e69fd741b8b718e.patch
     git apply cebdc1f94dcd6363da3a5d7e1e69fd741b8b718e.patch
     rm cebdc1f94dcd6363da3a5d7e1e69fd741b8b718e.patch
     sed -i 's/pwmchip1/pwmchip0/' target/linux/rockchip/armv8/base-files/usr/bin/fa-fancontrol.sh target/linux/rockchip/armv8/base-files/usr/bin/fa-fancontrol-direct.sh
 
-    # add ntfs3
+    echo "add ntfs3"
     wget https://github.com/coolsnowwolf/lede/commit/772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
     git apply 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
     rm 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
@@ -84,7 +84,7 @@ sed -i '/procd-ujail/d' include/target.mk
 echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
 
 if [[ ! $BUILDLEAN ]]; then
-  # bring the ethinfo back
+  echo "bring the ethinfo back"
   if [ -d 'package/emortal/autocore/files/x86' ]; then
     cd package/emortal/autocore/files/x86
     cp rpcd_luci rpcd_10_system.js rpcd_luci-mod-status.json ../arm
@@ -106,7 +106,7 @@ else
   fi
 fi
 
-# inject the firmware version
+echo "inject the firmware version"
 strDate=`TZ=UTC-8 date +%Y-%m-%d`
 status_pages=`find package/ -follow -type f \( -path '*/autocore/files/arm/index.htm' -o -path '*/autocore/files/x86/index.htm' -o -path '*/autocore/files/arm/rpcd_10_system.js' -o -path '*/autocore/files/x86/rpcd_10_system.js' \)`
 for status_page in $status_pages; do
@@ -126,15 +126,15 @@ case $status_page in
 esac
 done
 
-# little optimization argon css
+echo "little optimization argon css"
 css_file=`find package/ -follow -type f -path '*/argon/css/cascade.css'`
 line_number_h6=`grep -m1 -n 'h6 {' $css_file | cut -d: -f1`
 if [[ ! -z "$line_number_h6" ]]; then
 sed -i $line_number_h6',+10 s/font-weight: normal/font-weight: bold/' $css_file
 fi
 
-# set default theme to argon
+echo "set default theme to argon"
 sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' `find package -type f -path '*/default-settings/files/99-default-settings'`
 
-# remove the mirros from cn
+echo "remove the mirros from cn"
 sed -i '/182.140.223.146/d;/\.cn\//d;/tencent/d' scripts/download.pl
