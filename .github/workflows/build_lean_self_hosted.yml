@@ -26,7 +26,7 @@ jobs:
     name: Build ${{ github.event.client_payload.device || github.event.inputs.device }} packages
     runs-on: self-hosted
     env:
-      BUILDLEAN: true
+      BUILDLEAN: 'true'
       TESTKNVER: ${{ github.event.client_payload.testknver || github.event.inputs.testknver }}
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
       BRANCH: ${{ github.event.client_payload.branch || github.event.inputs.branch }}

@@ -38,7 +38,7 @@ if [[ "$BRANCH"=='master' && !$BUILDLEAN ]]; then
   echo "fix po path for snapshot"
   find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -rf {}/zh_Hans; ln -sf zh-cn {}/zh_Hans" || true
 
-  if [ ! $BUILDLEAN ]; then
+  if [ "$BUILDLEAN"!='true' ]; then
     echo "remove non-exist package from x86 profile"
     sed -i 's/kmod-i40evf//' target/linux/x86/Makefile
   fi
@@ -83,7 +83,7 @@ fi
 sed -i '/procd-ujail/d' include/target.mk
 echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
 
-if [[ ! $BUILDLEAN ]]; then
+if [[ "$BUILDLEAN"!='true' ]]; then
   echo "bring the ethinfo back"
   if [ -d 'package/emortal/autocore/files/x86' ]; then
     cd package/emortal/autocore/files/x86
