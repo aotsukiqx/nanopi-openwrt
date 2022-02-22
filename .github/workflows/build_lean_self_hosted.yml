@@ -7,10 +7,6 @@ on:
   #repository_dispatch:
   workflow_dispatch:
     inputs:
-      testknver:
-        description: 'use test kernel version?'
-        default: 'true'
-        required: false
       device:
         description: 'select device to build'
         default: 'x86'
@@ -27,7 +23,6 @@ jobs:
     runs-on: self-hosted
     env:
       BUILDLEAN: 'true'
-      TESTKNVER: ${{ github.event.client_payload.testknver || github.event.inputs.testknver }}
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
       BRANCH: ${{ github.event.client_payload.branch || github.event.inputs.branch }}
       TG: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -121,10 +116,7 @@ jobs:
           # cp $GITHUB_WORKSPACE/vermagic ./vermagic
           # sed -i 's/grep[ ].*\/\.vermagic/cp \$\(TOPDIR\)\/vermagic \$\(LINUX_DIR\)\/\.vermagic/' include/kernel-defaults.mk
           # sed -i 's/STAMP_BUILT\:\=.*$(MKHASH)[ ]md5)/cp \$\(TOPDIR\)\/vermagic \$\(LINUX_DIR\)\/\.vermagic/' package/kernel/linux/Makefile
-          make defconfig && sed -i -E 's/# (CONFIG_.*_COMPRESS_UPX) is not set/\1=y/' .config 
-          if [[ "$TESTKNVER"=='true' ]]; then
-          sed -i 's/CONFIG_LINUX_5_10\=y/CONFIG_LINUX_5_15\=y/g' .config
-          fi
+          make defconfig && sed -i -E 's/# (CONFIG_.*_COMPRESS_UPX) is not set/\1=y/' .config
           make defconfig
           cat .config
 
