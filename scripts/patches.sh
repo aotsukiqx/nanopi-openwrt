@@ -36,7 +36,7 @@ if [[ "$BRANCH"=='master' && !$BUILDLEAN ]]; then
   echo '# CONFIG_UCLAMP_TASK is not set' >> target/linux/sunxi/config-5.4
 
   # fix po path for snapshot
-  find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -rf {}/zh_Hans; ln -sf zh-cn {}/zh_Hans"
+  find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -rf {}/zh_Hans; ln -sf zh-cn {}/zh_Hans" || true
 
   if [[ ! $BUILDLEAN ]]; then
     # remove non-exist package from x86 profile
