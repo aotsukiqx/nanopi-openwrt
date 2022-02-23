@@ -113,7 +113,6 @@ jobs:
           release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
 
   generate_immortal_firmware:
-    if: "!cancelled()" #always()
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
     runs-on: ubuntu-20.04
     env:
@@ -175,7 +174,6 @@ jobs:
           release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
 
 generate_immortal_firmware:
-    if: "!cancelled()" #always()
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
     runs-on: ubuntu-20.04
     env:
