@@ -79,35 +79,35 @@ if [[ "$BRANCH" == 'master' ]]; then
     wget https://github.com/coolsnowwolf/lede/commit/772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
     git apply 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
     rm 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
+
+    if [[ "$BUILDLEAN" != 'true' ]]; then
+      echo "bring the ethinfo back"
+      if [ -d 'package/emortal/autocore/files/x86' ]; then
+        cd package/emortal/autocore/files/x86
+        cp rpcd_luci rpcd_10_system.js rpcd_luci-mod-status.json ../arm
+        cd -
+        mf_autcore=`find package/ -path '*/autocore/Makefile'`
+        sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DATA) ./files/x86/rpcd_21_ethinfo.js $(1)/www/luci-static/resources/view/status/include/21_ethinfo.js' $mf_autcore
+        sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DIR) $(1)/www/luci-static/resources/view/status/include' $mf_autcore
+        sed -i '/arm\/cpuinfo/a\\t$(INSTALL_BIN) ./files/x86/ethinfo $(1)/sbin/ethinfo' $mf_autcore
+      fi
+    else
+      if [ -d 'package/lean/autocore/files/x86' ]; then
+        cd package/lean/autocore/files/x86
+        cp rpcd_luci rpcd_10_system.js rpcd_luci-mod-status.json ../arm
+        cd -
+        mf_autcore=`find package/ -path '*/autocore/Makefile'`
+        sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DATA) ./files/x86/rpcd_21_ethinfo.js $(1)/www/luci-static/resources/view/status/include/21_ethinfo.js' $mf_autcore
+        sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DIR) $(1)/www/luci-static/resources/view/status/include' $mf_autcore
+        sed -i '/arm\/cpuinfo/a\\t$(INSTALL_BIN) ./files/x86/ethinfo $(1)/sbin/ethinfo' $mf_autcore
+      fi
+    fi
   fi
 fi
 
 #this is a ugly fix
 sed -i '/procd-ujail/d' include/target.mk
 echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
-
-if [[ "$BUILDLEAN" != 'true' ]]; then
-  echo "bring the ethinfo back"
-  if [ -d 'package/emortal/autocore/files/x86' ]; then
-    cd package/emortal/autocore/files/x86
-    cp rpcd_luci rpcd_10_system.js rpcd_luci-mod-status.json ../arm
-    cd -
-    mf_autcore=`find package/ -path '*/autocore/Makefile'`
-    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DATA) ./files/x86/rpcd_21_ethinfo.js $(1)/www/luci-static/resources/view/status/include/21_ethinfo.js' $mf_autcore
-    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DIR) $(1)/www/luci-static/resources/view/status/include' $mf_autcore
-    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_BIN) ./files/x86/ethinfo $(1)/sbin/ethinfo' $mf_autcore
-  fi
-else
-  if [ -d 'package/lean/autocore/files/x86' ]; then
-    cd package/lean/autocore/files/x86
-    cp rpcd_luci rpcd_10_system.js rpcd_luci-mod-status.json ../arm
-    cd -
-    mf_autcore=`find package/ -path '*/autocore/Makefile'`
-    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DATA) ./files/x86/rpcd_21_ethinfo.js $(1)/www/luci-static/resources/view/status/include/21_ethinfo.js' $mf_autcore
-    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_DIR) $(1)/www/luci-static/resources/view/status/include' $mf_autcore
-    sed -i '/arm\/cpuinfo/a\\t$(INSTALL_BIN) ./files/x86/ethinfo $(1)/sbin/ethinfo' $mf_autcore
-  fi
-fi
 
 echo "inject the firmware version"
 strDate=`TZ=UTC-8 date +%Y-%m-%d`
