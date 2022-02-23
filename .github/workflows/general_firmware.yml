@@ -22,7 +22,7 @@ on:
 jobs:
 
   generate_immortal_slim_firmware:
-    name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
+    name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} immortal slim firmware
     runs-on: ubuntu-20.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
@@ -67,7 +67,7 @@ jobs:
           release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
 
   generate_lean_slim_firmware:
-    name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
+    name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} lean slim firmware
     runs-on: ubuntu-20.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
@@ -113,7 +113,6 @@ jobs:
           release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
 
   generate_immortal_firmware:
-    name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
     runs-on: ubuntu-20.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
@@ -174,7 +173,7 @@ jobs:
           release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
 
   generate_lean_firmware:
-    name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
+    name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} lean firmware
     runs-on: ubuntu-20.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
