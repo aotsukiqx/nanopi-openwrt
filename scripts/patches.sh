@@ -10,8 +10,8 @@ sed -i "s/option limit_enable '1'/option limit_enable '0'/" `find package/ -foll
 sed -i "s/option enabled '1'/option enabled '0'/" `find package/ -follow -type f -path '*/vsftpd/files/vsftpd.uci'`
 sed -i "/\/etc\/coremark\.sh/d" `find package/ -follow -type f -path '*/coremark/coremark'`
 # 下面用于设置LAN默认地址
-sed -i 's/192.168.1.1/192.168.2.1/' package/base-files/files/bin/config_generate
-sed -i 's/=1/=0/g' package/kernel/linux/files/sysctl-br-netfilter.conf
+# sed -i 's/192.168.1.1/192.168.2.1/' package/base-files/files/bin/config_generate
+# sed -i 's/=1/=0/g' package/kernel/linux/files/sysctl-br-netfilter.conf
 
 sed -i '/DEPENDS/ s/$/ +libcap-bin/' `find package/ -follow -type f -path '*/luci-app-openclash/Makefile'`
 sed -i '/DEPENDS+/ s/$/ +wsdd2/' `find package/ -follow -type f -path '*/ksmbd-tools/Makefile'`
