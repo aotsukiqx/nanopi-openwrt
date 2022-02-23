@@ -21,20 +21,20 @@ on:
 
 jobs:
 
-  generate_slim_firmware:
+  generate_immortal_slim_firmware:
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
     runs-on: ubuntu-20.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
       BRANCH: master
-    steps:
+    if: github.event.client_payload.buildlean=='false' || github.event.inputs.buildlean=='false'   
 
+    steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
 
       - name: Generate firmware immortal
-        if: github.event.client_payload.buildlean=='false' || github.event.inputs.buildlean=='false' 
         run: |
           sudo apt update && sudo apt install qemu-utils
           sudo sysctl vm.swappiness=0
@@ -56,10 +56,30 @@ jobs:
           gzip -dc $DEVICE-slim.img.gz | md5sum | sed "s/-/$DEVICE-slim.img/" > $DEVICE-slim.img.md5
           echo "strDate=$(TZ=UTC-8 date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "strDevice=$(echo $DEVICE | awk '{print toupper($0)}')" >> $GITHUB_ENV
+      - name: Upload release asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./release/*
+          tag: ${{env.strDate}}.${{env.BRANCH}}
+          file_glob: true
+          overwrite: true
+          release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
+
+  generate_lean_slim_firmware:
+    name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
+    runs-on: ubuntu-20.04
+    env:
+      DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
+      BRANCH: master
+    if: github.event.client_payload.buildlean=='true' || github.event.inputs.buildlean=='true'  
 
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
       - name: Generate firmware lean
-        if: github.event.client_payload.buildlean=='true' || github.event.inputs.buildlean=='true' 
         run: |
           sudo apt update && sudo apt install qemu-utils
           sudo sysctl vm.swappiness=0
@@ -92,21 +112,21 @@ jobs:
           overwrite: true
           release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
 
-  generate_firmware:
+  generate_immortal_firmware:
     if: "!cancelled()" #always()
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
     runs-on: ubuntu-20.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
       BRANCH: master
-    steps:
+    if: github.event.client_payload.buildlean=='false' || github.event.inputs.buildlean=='false'
 
+    steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
 
       - name: Generate firmware immortal
-        if: github.event.client_payload.buildlean=='false' || github.event.inputs.buildlean=='false'
         run: |
           sudo apt update && sudo apt install qemu-utils
           sudo sysctl vm.swappiness=0
@@ -144,9 +164,31 @@ jobs:
           mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$DEVICE-with-docker.img.gz
           cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE-with-docker.img.gz > $DEVICE-with-docker.img.gz.md5
           gzip -dc $DEVICE-with-docker.img.gz | md5sum | sed "s/-/$DEVICE-with-docker.img/" > $DEVICE-with-docker.img.md5
+      - name: Upload release asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./release/*
+          tag: ${{env.strDate}}.${{env.BRANCH}}
+          file_glob: true
+          overwrite: true
+          release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
+
+generate_immortal_firmware:
+    if: "!cancelled()" #always()
+    name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
+    runs-on: ubuntu-20.04
+    env:
+      DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
+      BRANCH: master
+    if: github.event.client_payload.buildlean=='true' || github.event.inputs.buildlean=='true'
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
 
       - name: Generate firmware lean
-        if: github.event.client_payload.buildlean=='true' || github.event.inputs.buildlean=='true'
         run: |
           sudo apt update && sudo apt install qemu-utils
           sudo sysctl vm.swappiness=0
