@@ -88,10 +88,10 @@ jobs:
             pushd feeds/telephony; git restore .; popd
           fi
           ./scripts/feeds update -a
-          ./scripts/feeds install -a
+          ./scripts/feeds install -f -a
           echo "Merge packages & patches..."
-          . $GITHUB_WORKSPACE/scripts/merge_packages.sh
-          . $GITHUB_WORKSPACE/scripts/patches.sh
+          # . $GITHUB_WORKSPACE/scripts/merge_packages.sh
+          # . $GITHUB_WORKSPACE/scripts/patches.sh
           cd
           BRANCH='master'
           svn export https://github.com/openwrt/luci/branches/$BRANCH luci
