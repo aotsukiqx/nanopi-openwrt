@@ -129,7 +129,7 @@ esac
 done
 
 echo "little optimization argon css"
-if [[ "$BUILDLEAN" != 'true']]; then
+if [[ "$BUILDLEAN" != 'true' ]]; then
   css_file=`find package/ -follow -type f -path '*/argon/css/cascade.css'`
 fi
   css_file=`find package/ -follow -type f -path '*/argon/css/style.css'`
