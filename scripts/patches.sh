@@ -102,7 +102,6 @@ if [[ "$BRANCH" == 'master' ]]; then
         sed -i '/arm\/cpuinfo/a\\t$(INSTALL_BIN) ./files/x86/ethinfo $(1)/sbin/ethinfo' $mf_autcore
       fi
     fi
-  fi
 fi
 
 #this is a ugly fix
