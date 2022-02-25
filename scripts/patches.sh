@@ -37,13 +37,11 @@ if [[ "$BRANCH" == 'master' ]]; then
   echo '# CONFIG_SUN50I_IOMMU is not set' >> target/linux/sunxi/cortexa7/config-5.4
   echo '# CONFIG_UCLAMP_TASK is not set' >> target/linux/sunxi/config-5.4
 
-  if [[ "$BUILDLEAN" != 'true' ]]
+  if [[ "$BUILDLEAN" != 'true' ]]; then
   echo "fix po path for snapshot"
   find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -rf {}/zh_Hans; ln -sf zh-cn {}/zh_Hans" || true
-
-  if [[ "$BUILDLEAN" != 'true' ]]; then
-    echo "remove non-exist package from x86 profile"
-    sed -i 's/kmod-i40evf//' target/linux/x86/Makefile
+  echo "remove non-exist package from x86 profile"
+  sed -i 's/kmod-i40evf//' target/linux/x86/Makefile
   fi
 
   if [[ "$DEVICE" == 'r4s' || "$DEVICE" == 'r2s' || "$DEVICE" == 'r1s' || "$DEVICE" == 'r2c' ]]; then
@@ -102,6 +100,7 @@ if [[ "$BRANCH" == 'master' ]]; then
         sed -i '/arm\/cpuinfo/a\\t$(INSTALL_BIN) ./files/x86/ethinfo $(1)/sbin/ethinfo' $mf_autcore
       fi
     fi
+  fi
 fi
 
 #this is a ugly fix
@@ -145,4 +144,3 @@ sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' 
 
 echo "remove the mirros from cn"
 sed -i '/182.140.223.146/d;/\.cn\//d;/tencent/d' scripts/download.pl
-
