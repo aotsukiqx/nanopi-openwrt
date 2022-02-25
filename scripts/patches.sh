@@ -131,9 +131,11 @@ done
 echo "little optimization argon css"
 if [[ "$BUILDLEAN" != 'true' ]]; then
   css_file=`find package/ -follow -type f -path '*/argon/css/cascade.css'`
-fi
+else
   css_file=`find package/ -follow -type f -path '*/argon/css/style.css'`
   line_number_h6=`grep -m1 -n 'h6 {' $css_file | cut -d: -f1`
+fi
+
 if [[ ! -z "$line_number_h6" ]]; then
   sed -i $line_number_h6',+10 s/font-weight: normal/font-weight: bold/' $css_file
 fi
