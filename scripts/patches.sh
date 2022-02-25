@@ -38,10 +38,10 @@ if [[ "$BRANCH" == 'master' ]]; then
   echo '# CONFIG_UCLAMP_TASK is not set' >> target/linux/sunxi/config-5.4
 
   if [[ "$BUILDLEAN" != 'true' ]]; then
-  echo "fix po path for snapshot"
-  find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -rf {}/zh_Hans; ln -sf zh-cn {}/zh_Hans" || true
-  echo "remove non-exist package from x86 profile"
-  sed -i 's/kmod-i40evf//' target/linux/x86/Makefile
+    echo "fix po path for snapshot"
+    find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -rf {}/zh_Hans; ln -sf zh-cn {}/zh_Hans" || true
+    echo "remove non-exist package from x86 profile"
+    sed -i 's/kmod-i40evf//' target/linux/x86/Makefile
   fi
 
   if [[ "$DEVICE" == 'r4s' || "$DEVICE" == 'r2s' || "$DEVICE" == 'r1s' || "$DEVICE" == 'r2c' ]]; then
