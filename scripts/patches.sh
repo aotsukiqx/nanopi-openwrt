@@ -73,10 +73,10 @@ if [[ "$BRANCH" == 'master' ]]; then
     rm cebdc1f94dcd6363da3a5d7e1e69fd741b8b718e.patch
     sed -i 's/pwmchip1/pwmchip0/' target/linux/rockchip/armv8/base-files/usr/bin/fa-fancontrol.sh target/linux/rockchip/armv8/base-files/usr/bin/fa-fancontrol-direct.sh
 
-    echo "add ntfs3"
-    wget https://github.com/coolsnowwolf/lede/commit/772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
-    git apply 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
-    rm 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
+    # echo "add ntfs3"
+    # wget https://github.com/coolsnowwolf/lede/commit/772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
+    # git apply 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
+    # rm 772c5d2c8beac50ed5140c3d494f0806c64edc29.patch
 
     if [[ "$BUILDLEAN" != 'true' ]]; then
       echo "bring the ethinfo back"
