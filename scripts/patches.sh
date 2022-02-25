@@ -143,3 +143,4 @@ sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' 
 
 echo "remove the mirros from cn"
 sed -i '/182.140.223.146/d;/\.cn\//d;/tencent/d' scripts/download.pl
+
