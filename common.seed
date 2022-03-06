@@ -119,6 +119,6 @@ CONFIG_PACKAGE_v2ray-plugin=m
 CONFIG_PACKAGE_xray-core=m
 
 CONFIG_PACKAGE_vim=y
-CONFIG_PACKAGE_vim-full=y
+# CONFIG_PACKAGE_vim-full is not set
 
 CONFIG_TARGET_PREINIT_IP="192.168.2.1"
