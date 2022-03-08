@@ -43,7 +43,9 @@ jobs:
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk
           sudo sysctl vm.swappiness=0
           cd
-          umount lean || true
+          LOOP_DEVICE=$(losetup -f)
+          sudo losetup -d $LOOP_DEVICE
+          sudo umount lean || true
           rm -rf  iblean-$DEVICE.tar.xz lean.* luci bin || true
 
       - uses: actions/checkout@v2
