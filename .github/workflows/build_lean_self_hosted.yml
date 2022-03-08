@@ -89,34 +89,14 @@ jobs:
           fi
           ./scripts/feeds update -a
           ./scripts/feeds install -f -a
-          echo "Merge packages & patches..."
-          # . $GITHUB_WORKSPACE/scripts/merge_packages.sh
-          # . $GITHUB_WORKSPACE/scripts/patches.sh
           cd
           BRANCH='master'
           svn export https://github.com/openwrt/luci/branches/$BRANCH luci
-          pushd luci
-          # fix docker io.weight issue "https://github.com/openwrt/luci/issues/5327" | /usr/lib/lua/luci/model/cbi/dockerman/newcontainer.lua | container.lua
-          # sed -i 's/local[ ]blkio_weight[ ]\=[ ]data.blkio_weight[ ]or[ ]500/local blkio_weight \= nil/g' applications/luci-app-dockerman/luasrc/model/cbi/dockerman/newcontainer.lua
-          # sed -i 's/o\.placeholder[ ]\=[ ]\"500\"/o\.placeholder \= nil/g' applications/luci-app-dockerman/luasrc/model/cbi/dockerman/newcontainer.lua
-          # sed -i 's/default_config\.blkio_weight[ ]\=[ ]create_body\.HostConfig\.BlkioWeight/default_config\.blkio_weight \= nil/g' applications/luci-app-dockerman/luasrc/model/cbi/dockerman/newcontainer.lua
-          ls -d */ | xargs -n1 -i diff -q {} ../lean/feeds/luci/{} | grep Only | grep lean | grep -E applications\|themes | awk '{print $4}' | xargs -n1 -i echo CONFIG_PACKAGE_{}=m > ~/lean/more_luci.txt
-          popd
 
       - name: Custom configure file
         run: |
           cd ~/lean && rm -rf .tmp/
-          sed -i 's/KERNEL_PATCHVER\=5\.4/KERNEL_PATCHVER\=5\.10/g' target/linux/rockchip/Makefile
-          sed -i 's/KERNEL_TESTING_PATCHVER\=5\.10/KERNEL_TESTING_PATCHVER\=5\.15/g' target/linux/rockchip/Makefile
-          cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | sed 's/\(CONFIG_PACKAGE_luci-app-[^A-Z]*=\)y/\1m/' > .config
-          find package/ -type d -name luci-app-* | rev | cut -d'/' -f1 | rev | xargs -n1 -i echo CONFIG_PACKAGE_{}=m >> .config
-          cat $GITHUB_WORKSPACE/extra_packages.seed >> .config
-          cat more_luci.txt >> .config
-          # try build using formal kernel hash, testing
-          # cp $GITHUB_WORKSPACE/vermagic ./vermagic
-          # sed -i 's/grep[ ].*\/\.vermagic/cp \$\(TOPDIR\)\/vermagic \$\(LINUX_DIR\)\/\.vermagic/' include/kernel-defaults.mk
-          # sed -i 's/STAMP_BUILT\:\=.*$(MKHASH)[ ]md5)/cp \$\(TOPDIR\)\/vermagic \$\(LINUX_DIR\)\/\.vermagic/' package/kernel/linux/Makefile
-          make defconfig && sed -i -E 's/# (CONFIG_.*_COMPRESS_UPX) is not set/\1=y/' .config
+          cat $GITHUB_WORKSPACE/$DEVICE.diffconfig > .config
           make defconfig
           cat .config
 
