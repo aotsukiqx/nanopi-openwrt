@@ -44,7 +44,7 @@ jobs:
           sudo sysctl vm.swappiness=0
           cd
           LOOP_DEVICE=$(losetup -f)
-          sudo losetup -d $LOOP_DEVICE
+          sudo losetup -d $LOOP_DEVICE || true
           sudo umount lean || true
           rm -rf  iblean-$DEVICE.tar.xz lean.* luci bin || true
 
