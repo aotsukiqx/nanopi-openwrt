@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM myoung34/github-runner:latest
+FROM myoung34/github-runner
 LABEL maintainer="y.aotsuki@gmail.com"
 
 COPY ./sources.list /etc/apt/
@@ -12,8 +12,5 @@ texinfo libreadline-dev libglib2.0-dev xmlto qemu-utils upx libelf-dev \
 autoconf automake libtool autopoint ccache curl wget vim nano python2.7 \
 python3 python3-pip python-ply python3-ply haveged lrzsz device-tree-compiler \
 scons antlr3 gperf intltool mkisofs rsync swig wget
-RUN cd /actions-runner && wget http://launchpadlibrarian.net/465140146/btrfs-progs_5.4.1-2_amd64.deb && apt install -y btrfs-progs_5.4.1-2_amd64.deb
-WORKDIR /_work
-
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["./bin/Runner.Listener", "run", "--startuptype", "service"]
+COPY ./btrfs-progs_5.4.1-2_amd64.deb /actions-runner
+RUN cd /actions-runner && apt install -y ./btrfs-progs_5.4.1-2_amd64.deb
