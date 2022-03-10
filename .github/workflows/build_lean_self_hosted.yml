@@ -76,7 +76,7 @@ jobs:
           cd lean && sudo rm -f zerospace && git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
           git fetch && git reset --hard origin/$BRANCH
           else
-          echo "Checkout imortalwrt and chown"
+          echo "Checkout lean and chown"
           cd ~
           sudo chown $USER:$(id -gn) lean && git clone -b $BRANCH --single-branch https://github.com/coolsnowwolf/lede lean
           fi
