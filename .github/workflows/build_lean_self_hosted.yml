@@ -47,7 +47,7 @@ jobs:
           LOOP_DEVICE=$(losetup -f)
           sudo losetup -d $LOOP_DEVICE || true
           sudo umount lean || true
-          rm -rf  iblean-$DEVICE.tar.xz lean.* luci || true
+          rm -rf  iblean-$DEVICE.tar.xz lean.* luci lean || true
 
       - uses: actions/checkout@v2
         with:
