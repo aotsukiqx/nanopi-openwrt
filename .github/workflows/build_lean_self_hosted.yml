@@ -69,7 +69,7 @@ jobs:
           LOOP_DEVICE=$(losetup -f) && echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
           sudo losetup -P --direct-io $LOOP_DEVICE lean.img
           mkdir lean && sudo mount -o nossd,compress=zstd $LOOP_DEVICE lean
-          BRANCH="master"
+          BRANCH=master
           if [ -d 'lean/.git' ]; then
           cd ~
           sudo chown -R $USER:$(id -gn) lean
