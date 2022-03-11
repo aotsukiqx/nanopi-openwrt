@@ -78,12 +78,13 @@ jobs:
           else
           echo "Checkout lean and chown"
           cd ~
-          sudo chown $USER:$(id -gn) lean && git clone -b $BRANCH --single-branch https://github.com/coolsnowwolf/lede lean
+          sudo chown $USER:$(id -gn) lean && git clone -b $BRANCH --single-branch https://git.mynameqx.top/aotsukiqx/lean_openwrt lean
           fi
 
       - name: Update feeds and packages
         run: |
           cd ~/lean
+          cp $RUNNER_WORKSPACE/nanopi-openwrt/feeds.conf.default ./
           if [ -d 'feeds' ]; then
             pushd feeds/packages; git restore .; popd
             pushd feeds/luci; git restore .; popd
@@ -124,7 +125,7 @@ jobs:
 
           echo "======================="
           echo "Space usage:"
-          echo "======================="
+          echo "======= ================"
           df -h
           echo "======================="
           du -h --max-depth=1 ./ --exclude=build_dir --exclude=bin
