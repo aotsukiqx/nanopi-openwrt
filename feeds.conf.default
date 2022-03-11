@@ -1,8 +1,8 @@
 src-git packages https://git.mynameqx.top/aotsukiqx/lean_packages
 src-git luci https://git.mynameqx.top/aotsukiqx/lean_luci
-src-git routing https://git.mynameqx.top/aotsukiqx/lean_routing
-src-git telephony https://git.mynameqx.top/aotsukiqx/lean_telephony
-#src-git video https://github.com/openwrt/video.git
+src-git routing https://git.mynameqx.top/aotsukiqx/openwrt_routing
+src-git telephony https://git.mynameqx.top/aotsukiqx/openwrt_telephony
+#src-git video https://git.mynameqx.top/aotsukiqx/openwrt_video.git
 #src-git targets https://github.com/openwrt/targets.git
 #src-git oldpackages http://git.openwrt.org/packages.git
 #src-link custom /usr/src/openwrt/custom-feed
