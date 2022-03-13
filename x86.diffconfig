@@ -2,17 +2,6 @@ CONFIG_TARGET_x86=y
 CONFIG_TARGET_x86_64=y
 CONFIG_TARGET_x86_64_DEVICE_generic=y
 
-# CONFIG_DEFAULT_kmod-sound-hda-codec-hdmi is not set
-# CONFIG_DEFAULT_kmod-sound-hda-codec-realtekv
-# CONFIG_DEFAULT_kmod-sound-hda-codec-via is not set
-# CONFIG_DEFAULT_kmod-sound-hda-core is not set
-# CONFIG_DEFAULT_kmod-sound-hda-intel is not set
-# CONFIG_DEFAULT_kmod-sound-i8x0 is not set
-# CONFIG_DEFAULT_kmod-sound-via82xx is not set
-# CONFIG_DEFAULT_kmod-usb-audio is not set
-# CONFIG_DEFAULT_kmod-i40evf is not set
-# CONFIG_DEFAULT_luci-app-ssr-plus is not set
-
 CONFIG_BUSYBOX_CUSTOM=y
 CONFIG_BUSYBOX_CONFIG_ADDGROUP=y
 CONFIG_BUSYBOX_CONFIG_ADDUSER=y
