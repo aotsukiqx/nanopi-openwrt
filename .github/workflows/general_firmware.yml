@@ -86,9 +86,9 @@ jobs:
           ulimit -SHn 65000
           curl -L https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/iblean-$DEVICE.tar.xz | tar -Jxvf -
           mv *imagebuilder* ib && cd ib
-          # . $GITHUB_WORKSPACE/scripts/merge_files.sh
-          # mkdir -p files/local_feed && sudo mount --bind packages files/local_feed
-          # sed -i 's/luci-app-[^ ]*//g' include/target.mk $(find target/ -name Makefile)
+          . $GITHUB_WORKSPACE/scripts/merge_files.sh
+          mkdir -p files/local_feed && sudo mount --bind packages files/local_feed
+          sed -i 's/luci-app-[^ ]*//g' include/target.mk $(find target/ -name Makefile)
           sed -i 's/$(OPKG) install $(BUILD_PACKAGES)/$(OPKG) install --force-overwrite $(BUILD_PACKAGES)/' Makefile
           ls packages/*.ipk | xargs -n1 basename > package.files
           PACKAGES=$(cat $GITHUB_WORKSPACE/$DEVICE.diffconfig | grep CONFIG_PACKAGE | grep -v CONFIG_PACKAGE_luci-app | sed 's/CONFIG_PACKAGE_//;s/=y//' | xargs -n1 -i grep -o {} package.files | sort -u | xargs echo)
@@ -194,9 +194,9 @@ jobs:
           curl -L https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/iblean-$DEVICE.tar.xz | tar -Jxvf -
           set -x
           mv *imagebuilder* ib && cd ib
-          # . $GITHUB_WORKSPACE/scripts/merge_files.sh
+          . $GITHUB_WORKSPACE/scripts/merge_files.sh
           sed -i '/local/d;s/#//' files/etc/opkg/distfeeds.conf
-          # sed -i 's/luci-app-[^ ]*//g' include/target.mk $(find target/ -name Makefile)
+          sed -i 's/luci-app-[^ ]*//g' include/target.mk $(find target/ -name Makefile)
           sed -i 's/$(OPKG) install $(BUILD_PACKAGES)/$(OPKG) install --force-overwrite $(BUILD_PACKAGES)/' Makefile
           ls packages/*.ipk | xargs -n1 basename > package.files
           PACKAGES=$(cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | grep CONFIG_PACKAGE | grep -v CONFIG_PACKAGE_luci-app | sed 's/CONFIG_PACKAGE_//;s/=y//' | xargs -n1 -i grep -o {} package.files | sort -u | xargs echo)
