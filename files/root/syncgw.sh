@@ -1,6 +1,6 @@
 #!/bin/bash
 
-scp -r /etc/dropbear root@192.168.2.9:/etc/
+scp -r /etc/dropbear root@192.168.2.9:/etc/dropbear
 scp /etc/config/passwall root@192.168.2.9:/etc/config/
 scp /etc/config/passwall_server root@192.168.2.9:/etc/config/
 scp /etc/config/passwall_show root@192.168.2.9:/etc/config/
