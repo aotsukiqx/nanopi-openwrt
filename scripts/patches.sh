@@ -1,5 +1,3 @@
-echo “DEVICE: $DEVICE, GITHUB_WORKSPACE: $GITHUB_WORKSPACE, BRANCH: $BRANCH, BUILDLEAN: $BUILDLEAN”
-
 config_file_turboacc=`find package/ -follow -type f -path '*/luci-app-turboacc/root/etc/config/turboacc'`
 sed -i "s/option hw_flow '1'/option hw_flow '0'/" $config_file_turboacc
 sed -i "s/option sfe_flow '1'/option sfe_flow '0'/" $config_file_turboacc
@@ -9,15 +7,14 @@ sed -i "/dep.*INCLUDE_.*=n/d" `find package/ -follow -type f -path '*/luci-app-t
 sed -i "s/option limit_enable '1'/option limit_enable '0'/" `find package/ -follow -type f -path '*/nft-qos/files/nft-qos.config'`
 sed -i "s/option enabled '1'/option enabled '0'/" `find package/ -follow -type f -path '*/vsftpd-alt/files/vsftpd.uci'`
 sed -i "/\/etc\/coremark\.sh/d" `find package/ -follow -type f -path '*/coremark/coremark'`
-# 下面用于设置LAN默认地址
-# sed -i 's/192.168.1.1/192.168.2.1/' package/base-files/files/bin/config_generate
-# sed -i 's/=1/=0/g' package/kernel/linux/files/sysctl-br-netfilter.conf
+sed -i 's/192.168.1.1/192.168.2.1/' package/base-files/files/bin/config_generate
+sed -i 's/=1/=0/g' package/kernel/linux/files/sysctl-br-netfilter.conf
 
 sed -i '/DEPENDS/ s/$/ +libcap-bin/' `find package/ -follow -type f -path '*/luci-app-openclash/Makefile'`
 sed -i '/DEPENDS+/ s/$/ +wsdd2/' `find package/ -follow -type f -path '*/ksmbd-tools/Makefile'`
 sed -i '/DEPENDS/ s/$/ +frpc/' `find package/ -follow -type f -path '*/luci-app-frpc/Makefile'`
 
-sed -i 's/ +ntfs-3g/ +ntfs3-oot-mount/' `find package/ -follow -type f -path '*/automount/Makefile'`
+sed -i 's/ +ntfs-3g/ +ntfs3-mount/' `find package/ -follow -type f -path '*/automount/Makefile'`
 sed -i '/skip\=/ a skip=`mount | grep -q /dev/$device; echo $?`' `find package/ -follow -type f -path */automount/files/15-automount`
 
 mkdir -p `find package/ -follow -type d -path '*/pdnsd-alt'`/patches
@@ -25,7 +22,7 @@ mv $GITHUB_WORKSPACE/patches/99-disallow-aaaa.patch `find package/ -follow -type
 
 sed -i 's/5.0/1.0/' .ccache/ccache.conf || true
 
-if [[ "$BRANCH" == 'master' ]]; then
+if [ $BRANCH == 'master' ]; then
 
   # fix po path for snapshot
   #find package/ -follow -type d -path '*/po/zh-cn' | xargs dirname | xargs -n1 -i sh -c "rm -f {}/zh_Hans; ln -sf zh-cn {}/zh_Hans"
@@ -58,11 +55,7 @@ if [[ "$BRANCH" == 'master' ]]; then
 
 fi
 
-#this is a ugly fix
-sed -i '/procd-ujail/d' include/target.mk
-echo 'CONFIG_PACKAGE_procd-seccomp=y' >> $GITHUB_WORKSPACE/common.seed
-
-echo "inject the firmware version"
+# inject the firmware version
 strDate=`TZ=UTC-8 date +%Y-%m-%d`
 status_pages=`find package/ -follow -type f \( -path '*/autocore/files/arm/index.htm' -o -path '*/autocore/files/x86/index.htm' -o -path '*/autocore/files/arm/rpcd_10_system.js' -o -path '*/autocore/files/x86/rpcd_10_system.js' \)`
 for status_page in $status_pages; do
@@ -70,11 +63,11 @@ case $status_page in
   *htm)
     line_number_FV=`grep -n 'Firmware Version' $status_page | cut -d: -f 1`
     sed -i '/ver\./d' $status_page
-    sed -i $line_number_FV' a <a href="https://github.com/aotsukiqx/nanopi-openwrt" target="_blank">aotsuki/nanopi-openwrt</a> '$strDate $status_page
+    sed -i $line_number_FV' a <a href="https://github.com/klever1988/nanopi-openwrt" target="_blank">klever1988/nanopi-openwrt</a> '$strDate $status_page
     ;;
   *js)
     line_number_FV=`grep -m1 -n 'var fields' $status_page | cut -d: -f1`
-    sed -i $line_number_FV' i var pfv = document.createElement('\''placeholder'\'');pfv.innerHTML = '\''<a href="https://github.com/aotsukiqx/nanopi-openwrt" target="_blank">aotsuki/nanopi-openwrt</a> '$strDate"';" $status_page
+    sed -i $line_number_FV' i var pfv = document.createElement('\''placeholder'\'');pfv.innerHTML = '\''<a href="https://github.com/klever1988/nanopi-openwrt" target="_blank">klever1988/nanopi-openwrt</a> '$strDate"';" $status_page
     line_number_FV=`grep -n 'Firmware Version' $status_page | cut -d : -f 1`
     sed -i '/Firmware Version/d' $status_page
     sed -i $line_number_FV' a _('\''Firmware Version'\''), pfv,' $status_page
@@ -85,5 +78,5 @@ done
 # set default theme to argon
 sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon"' `find package -type f -path '*/default-settings/files/*-default-settings'`
 
-echo "remove the mirros from cn"
+# remove the mirros from cn
 sed -i '/182.140.223.146/d;/\.cn\//d;/tencent/d' scripts/download.pl
