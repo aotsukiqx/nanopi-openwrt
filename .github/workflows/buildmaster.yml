@@ -64,7 +64,7 @@ jobs:
           echo "Checkout imortalwrt and chown"
           mkdir ~/lede || true
           cd ~
-          sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://github.com/immortalwrt/immortalwrt lede
+          sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://github.com/coolsnowwolf/lede lede
           fi
 
       - name: Update feeds and packages
@@ -95,8 +95,6 @@ jobs:
       - name: Custom configure file
         run: |
           cd ~/lede && rm -rf .tmp/
-          sed -i 's/KERNEL_PATCHVER\=5\.4/KERNEL_PATCHVER\=5\.10/g' target/linux/rockchip/Makefile
-          sed -i 's/KERNEL_TESTING_PATCHVER\=5\.10/KERNEL_TESTING_PATCHVER\=5\.15/g' target/linux/rockchip/Makefile
           cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | sed 's/\(CONFIG_PACKAGE_luci-app-[^A-Z]*=\)y/\1m/' > .config
           find package/ -type d -name luci-app-* | rev | cut -d'/' -f1 | rev | xargs -n1 -i echo CONFIG_PACKAGE_{}=m >> .config
           cat $GITHUB_WORKSPACE/extra_packages.seed >> .config
@@ -121,7 +119,7 @@ jobs:
         run: |
           ulimit -SHn 65000
           cd ~/lede
-          while true; do make -j6 download && break || true; done
+          while true; do make -j$[`nproc`+1] download && break || true; done
           make -j$[`nproc`+1] IGNORE_ERRORS=1
           # make -j1 V=s IGNORE_ERRORS=1
           if [ ! -e ~/lede/bin/targets/*/*/*imagebuilder*xz ]; then make V=sc; fi
