@@ -46,3 +46,5 @@ drop_package luci-app-cd8021x
 drop_package luci-app-cifs
 drop_package verysync
 drop_package luci-app-verysync
+
+echo "End of merge packages..."
