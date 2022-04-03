@@ -1,4 +1,5 @@
 #!/bin/bash
+# 脚本在GW上执行，新刷好的GW在192.168.2.9
 
 scp -r /etc/dropbear root@192.168.2.9:/etc/dropbear
 scp /etc/config/passwall root@192.168.2.9:/etc/config/
@@ -9,6 +10,7 @@ scp /etc/config/uhttpd root@192.168.2.9:/etc/config/
 scp /etc/config/cifs root@192.168.2.9:/etc/config/
 scp /etc/config/dhcp root@192.168.2.9:/etc/config/
 scp /etc/config/zerotier root@192.168.2.9:/etc/config/
+scp /etc/config/bandwidthd root@192.168.2.9:/etc/config/
 scp -r /etc/config/zero root@192.168.2.9:/etc/config/
 scp /etc/v2ray/config.json root@192.168.2.9:/etc/v2ray/config.json
 scp -r /root/heimdall root@192.168.2.9:/root/heimdall
