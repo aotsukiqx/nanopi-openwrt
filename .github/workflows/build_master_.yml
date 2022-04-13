@@ -74,9 +74,9 @@ jobs:
           cd lede && sudo rm -f zerospace && git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
           git fetch && git reset --hard origin/$BRANCH
           else
-          echo "Checkout imortalwrt and chown"
+          echo "Checkout lede and chown"
           cd ~
-          sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://github.com/coolsnowwolf/lede lede
+          sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://git.mynameqx.top/aotsukiqx/lean_openwrt.git lede
           fi
 
       - name: Update feeds and packages
