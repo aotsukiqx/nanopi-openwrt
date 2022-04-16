@@ -1,4 +1,5 @@
 function merge_package(){
+    echo "Merging $1 ..."
     pn=`echo $1 | rev | cut -d'/' -f 1 | rev`
     find package/ -follow -name $pn -not -path "package/custom/*" | xargs -rt rm -r
     if [ ! -z "$2" ]; then
