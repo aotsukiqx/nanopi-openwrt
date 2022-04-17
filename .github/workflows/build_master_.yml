@@ -71,8 +71,8 @@ jobs:
           if [ -d 'lede/.git' ]; then
           cd ~
           sudo chown $USER:$(id -gn) lede
-          cd lede && sudo rm -f zerospace && git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
-          git fetch && git reset --hard origin/$BRANCH
+          cd lede && sudo rm -rf * && cd ~
+          git clone -b $BRANCH --single-branch https://github.com/coolsnowwolf/lede lede
           else
           echo "Checkout lede and chown"
           cd ~
