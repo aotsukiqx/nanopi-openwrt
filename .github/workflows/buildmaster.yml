@@ -76,7 +76,7 @@ jobs:
           else
           echo "Checkout lede and chown"
           cd ~
-          sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://git.mynameqx.top/aotsukiqx/lean_openwrt.git lede
+          sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://github.com/coolsnowwolf/lede lede
           fi
 
       - name: Update feeds and packages
