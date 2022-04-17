@@ -4,12 +4,12 @@ on:
   # schedule:
   #   # daily build on UTC+8 7:30
   #   - cron:  '30 18 * * 2,5'
-  repository_dispatch:
+  #repository_dispatch:
   workflow_dispatch:
     inputs:
       device:
         description: 'select device to build'
-        default: 'r4s'
+        default: 'x86'
         required: false
       branch:
         description: 'seleclt openwrt branch'
@@ -34,10 +34,18 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
+          echo "Cleaning up previous run"
+          cd $RUNNER_WORKSPACE
+          cd ..
+          rm -rf nanopi-openwrt/nanopi-openwrt/* || true
+          sudo curl https://git.mynameqx.top/aotsukiqx/dev_env/raw/master/sources.list -o /etc/apt/sources.list
           sudo apt update;
-          sudo apt -y --no-upgrade --no-install-recommends install pv jq build-essential zstd xz-utils cmake asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libreadline-dev libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint ccache curl wget vim nano python2.7 python3 python3-pip python-ply python3-ply haveged lrzsz device-tree-compiler scons antlr3 gperf intltool mkisofs rsync swig
+          sudo apt -y --no-upgrade --no-install-recommends install parallel pv jq build-essential zstd xz-utils cmake asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libreadline-dev libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint ccache curl wget vim nano python2.7 python3 python3-pip python-ply python3-ply haveged lrzsz device-tree-compiler scons antlr3 gperf intltool mkisofs rsync swig btrfs-progs
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk
           sudo sysctl vm.swappiness=0
+          cd
+          umount lede || true
+          rm -rf  ib-$DEVICE.tar.xz lede.* lede luci || true
 
       - uses: actions/checkout@v2
         with:
@@ -49,7 +57,12 @@ jobs:
           curl -sL https://raw.githubusercontent.com/aotsukiqx/nanopi-openwrt/zstd-bin/zstd | sudo tee /usr/bin/zstd > /dev/null
           for i in {1..20}
           do
-            curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/lede.$DEVICE.img.zst.0$i || break
+            if [[ "$DEVICE"!="r4s" && "$DEVICE"!="x86" ]]; then
+              echo "Using ib: $DEVICE"
+              curl -sL --fail https://github.com/klever1988/sshactions/releases/download/cache/lede.$DEVICE.img.zst.0$i || break
+            else
+              curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/lede.$DEVICE.img.zst.0$i || break
+            fi
           done | zstdmt -d -o lede.img || (truncate -s 40g lede.img && mkfs.btrfs -M lede.img)
           LOOP_DEVICE=$(losetup -f) && echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
           sudo losetup -P --direct-io $LOOP_DEVICE lede.img
@@ -57,14 +70,13 @@ jobs:
           BRANCH="master"
           if [ -d 'lede/.git' ]; then
           cd ~
-          sudo chown -R $USER:$(id -gn) lede
-          cd lede && rm -f zerospace && git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
+          sudo chown $USER:$(id -gn) lede
+          cd lede && sudo rm -f zerospace && git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
           git fetch && git reset --hard origin/$BRANCH
           else
-          echo "Checkout imortalwrt and chown"
-          mkdir ~/lede || true
+          echo "Checkout lede and chown"
           cd ~
-          sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://github.com/coolsnowwolf/lede lede
+          sudo chown $USER:$(id -gn) lede && git clone -b $BRANCH --single-branch https://git.mynameqx.top/aotsukiqx/lean_openwrt.git lede
           fi
 
       - name: Update feeds and packages
@@ -119,7 +131,7 @@ jobs:
         run: |
           ulimit -SHn 65000
           cd ~/lede
-          while true; do make -j$[`nproc`+1] download && break || true; done
+          while true; do make download -j$[`nproc`+1] && break || true; done
           make -j$[`nproc`+1] IGNORE_ERRORS=1
           # make -j1 V=s IGNORE_ERRORS=1
           if [ ! -e ~/lede/bin/targets/*/*/*imagebuilder*xz ]; then make V=sc; fi
@@ -210,111 +222,3 @@ jobs:
           SSH_PUBKEY: ${{secrets.SSH_PUBKEY}}
           NGROK_TOKEN: ${{secrets.TUNNEL_KEY}}
           TUNNEL_HOST: ${{secrets.TUNNEL_HOST}}
-
-  generate_slim_firmware:
-    needs: build_packages
-    name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
-    runs-on: ubuntu-20.04
-    env:
-      DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
-      BRANCH: master
-    steps:
-
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
-
-      - name: Generate firmware
-        run: |
-          sudo apt update && sudo apt install qemu-utils
-          sudo sysctl vm.swappiness=0
-          ulimit -SHn 65000
-          curl -L https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/ib-$DEVICE.tar.xz | tar -Jxvf -
-          mv *imagebuilder* ib && cd ib
-          . $GITHUB_WORKSPACE/scripts/merge_files.sh
-          mkdir -p files/local_feed && sudo mount --bind packages files/local_feed
-          sed -i 's/luci-app-[^ ]*//g' include/target.mk $(find target/ -name Makefile)
-          sed -i 's/$(OPKG) install $(BUILD_PACKAGES)/$(OPKG) install --force-overwrite $(BUILD_PACKAGES)/' Makefile
-          ls packages/*.ipk | xargs -n1 basename > package.files
-          PACKAGES=$(cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | grep CONFIG_PACKAGE | grep -v CONFIG_PACKAGE_luci-app | sed 's/CONFIG_PACKAGE_//;s/=y//' | xargs -n1 -i grep -o {} package.files | sort -u | xargs echo)
-          PACKAGES="$PACKAGES `grep -o luci-i18n-opkg-zh-cn package.files || true`"
-          make image PACKAGES="$PACKAGES $LUCI $LP luci-i18n-base-zh-cn luci-i18n-firewall-zh-cn" FILES="files"
-
-          mkdir -p $GITHUB_WORKSPACE/release
-          mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$DEVICE-slim.img.gz
-          cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE-slim.img.gz > $DEVICE-slim.img.gz.md5
-          gzip -dc $DEVICE-slim.img.gz | md5sum | sed "s/-/$DEVICE-slim.img/" > $DEVICE-slim.img.md5
-          echo "strDate=$(TZ=UTC-8 date +%Y-%m-%d)" >> $GITHUB_ENV
-          echo "strDevice=$(echo $DEVICE | awk '{print toupper($0)}')" >> $GITHUB_ENV
-
-      - name: Upload release asset
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./release/*
-          tag: ${{env.strDate}}.${{env.BRANCH}}
-          file_glob: true
-          overwrite: true
-          release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
-
-  generate_firmware:
-    needs: build_packages
-    name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
-    runs-on: ubuntu-20.04
-    env:
-      DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
-      BRANCH: master
-    steps:
-
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
-
-      - name: Generate firmware
-        run: |
-          sudo apt update && sudo apt install qemu-utils
-          sudo sysctl vm.swappiness=0
-          ulimit -SHn 65000
-          curl -L https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/ib-$DEVICE.tar.xz | tar -Jxvf -
-          set -x
-          mv *imagebuilder* ib && cd ib
-          . $GITHUB_WORKSPACE/scripts/merge_files.sh
-          sed -i '/local/d;s/#//' files/etc/opkg/distfeeds.conf
-          sed -i 's/luci-app-[^ ]*//g' include/target.mk $(find target/ -name Makefile)
-          sed -i 's/$(OPKG) install $(BUILD_PACKAGES)/$(OPKG) install --force-overwrite $(BUILD_PACKAGES)/' Makefile
-          ls packages/*.ipk | xargs -n1 basename > package.files
-          PACKAGES=$(cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | grep CONFIG_PACKAGE | grep -v CONFIG_PACKAGE_luci-app | sed 's/CONFIG_PACKAGE_//;s/=y//' | xargs -n1 -i grep -o {} package.files | sort -u | xargs echo)
-          PACKAGES="$PACKAGES `grep -o luci-i18n-opkg-zh-cn package.files || true`"
-          LUCI=$(cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | grep CONFIG_PACKAGE_luci-app | grep -v docker | sed 's/CONFIG_PACKAGE_//;s/=y//' | xargs -n1 -i grep -o {} package.files | sort -u | xargs echo)
-          LP=$(echo $LUCI | sed 's/-app-/-i18n-/g;s/ /\n/g' | xargs -n1 -i grep -o {}-zh-cn package.files | xargs echo)
-          sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE\=600/CONFIG_TARGET_ROOTFS_PARTSIZE\=800/g' .config
-          make image PACKAGES="$PACKAGES $LUCI $LP luci-i18n-base-zh-cn luci-i18n-firewall-zh-cn" FILES="files"
-
-          mkdir -p $GITHUB_WORKSPACE/release
-          mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$DEVICE.img.gz
-          cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE.img.gz > $DEVICE.img.gz.md5
-          gzip -dc $DEVICE.img.gz | md5sum | sed "s/-/$DEVICE.img/" > $DEVICE.img.md5
-          echo "strDate=$(TZ=UTC-8 date +%Y-%m-%d)" >> $GITHUB_ENV
-          echo "strDevice=$(echo $DEVICE | awk '{print toupper($0)}')" >> $GITHUB_ENV
-
-          if [[ ${{ github.event.client_payload.device || github.event.inputs.device }} == *"r1s"* ]]; then
-            exit 0
-          fi
-          cd $GITHUB_WORKSPACE/ib
-          rm -rf bin/
-          LUCI=$(cat $GITHUB_WORKSPACE/$DEVICE.config.seed $GITHUB_WORKSPACE/common.seed | grep CONFIG_PACKAGE_luci-app | sed 's/CONFIG_PACKAGE_//;s/=y//' | xargs -n1 -i grep -o {} package.files | sort -u | xargs echo)
-          LP=$(echo $LUCI | sed 's/-app-/-i18n-/g;s/ /\n/g' | xargs -n1 -i grep -o {}-zh-cn package.files | xargs echo | xargs echo)
-          make image PACKAGES="$PACKAGES $LUCI $LP luci-i18n-base-zh-cn luci-i18n-firewall-zh-cn" FILES="files"
-          mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$DEVICE-with-docker.img.gz
-          cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE-with-docker.img.gz > $DEVICE-with-docker.img.gz.md5
-          gzip -dc $DEVICE-with-docker.img.gz | md5sum | sed "s/-/$DEVICE-with-docker.img/" > $DEVICE-with-docker.img.md5
-
-      - name: Upload release asset
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./release/*
-          tag: ${{env.strDate}}.${{env.BRANCH}}
-          file_glob: true
-          overwrite: true
-          release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
