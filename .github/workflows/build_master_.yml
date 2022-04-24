@@ -63,7 +63,7 @@ jobs:
             else
               curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/lede.$DEVICE.img.zst.0$i || break
             fi
-          done | zstdmt -d -o lede.img || (truncate -s 40g lede.img && mkfs.btrfs -M lede.img)
+          done | zstdmt -d -o lede.img || (truncate -s 33g lede.img && mkfs.btrfs -M lede.img)
           LOOP_DEVICE=$(losetup -f) && echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
           sudo losetup -P --direct-io $LOOP_DEVICE lede.img
           mkdir lede && sudo mount -o nossd,compress=zstd $LOOP_DEVICE lede
