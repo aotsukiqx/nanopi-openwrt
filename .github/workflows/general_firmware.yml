@@ -6,10 +6,6 @@ on:
   #   - cron:  '30 18 * * 2,5'
   workflow_dispatch:
     inputs:
-      buildlean:
-        description: 'buld lean?'
-        default: 'false'
-        required: false
       device:
         description: 'select device to build'
         default: 'x86'
