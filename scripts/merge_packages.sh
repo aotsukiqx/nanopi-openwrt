@@ -1,9 +1,9 @@
 function merge_package(){
     echo "Merging $1 ..."
     pn=`echo $1 | rev | cut -d'/' -f 1 | rev`
-    find package/ -follow -name $pn -not -path "package/custom/*" | xargs -rt rm -r
+    find package/ -follow -name $pn -not -path "package/custom/*" | xargs -rt rm -rf
     if [ ! -z "$2" ]; then
-        find package/ -follow -name $2 -not -path "package/custom/*" | xargs -rt rm -r
+        find package/ -follow -name $2 -not -path "package/custom/*" | xargs -rt rm -rf
     fi
 
     if [[ $1 == *'/trunk/'* || $1 == *'/branches/'* ]]; then
@@ -15,7 +15,7 @@ function merge_package(){
     mv $pn package/custom/
 }
 function drop_package(){
-    find package/ -follow -name $1 -not -path "package/custom/*" | xargs -rt rm -r
+    find package/ -follow -name $1 -not -path "package/custom/*" | xargs -rt rm -rf
 }
 function merge_feed(){
     if [ ! -d "feed/$1" ]; then
