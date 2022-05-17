@@ -8,7 +8,7 @@ on:
     inputs:
       device:
         description: 'select device to build'
-        default: 'x86'
+        default: 'r4s'
         required: false
       branch:
         description: 'seleclt openwrt branch'
@@ -22,8 +22,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
-      BRANCH: master
-    if: github.event.client_payload.buildlean=='false' || github.event.inputs.buildlean=='false'   
+      BRANCH: master  
 
     steps:
       - uses: actions/checkout@v2
@@ -68,7 +67,6 @@ jobs:
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
       BRANCH: master
-    if: github.event.client_payload.buildlean=='false' || github.event.inputs.buildlean=='false'
 
     steps:
       - uses: actions/checkout@v2
