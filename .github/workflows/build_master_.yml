@@ -94,7 +94,7 @@ jobs:
           . $GITHUB_WORKSPACE/scripts/merge_packages.sh
           . $GITHUB_WORKSPACE/scripts/patches.sh
           cd
-          BRANCH='master'
+          BRANCH='trunk'
           svn export https://github.com/openwrt/luci/branches/$BRANCH luci
           pushd luci
           # fix docker io.weight issue "https://github.com/openwrt/luci/issues/5327" | /usr/lib/lua/luci/model/cbi/dockerman/newcontainer.lua | container.lua
