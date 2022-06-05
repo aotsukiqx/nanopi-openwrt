@@ -12,6 +12,7 @@ scp /etc/config/passwall_server root@192.168.2.9:/etc/config/
 scp /etc/config/passwall_show root@192.168.2.9:/etc/config/
 scp -r /usr/share/passwall/rules root@192.168.2.9:/usr/share/passwall
 scp /etc/apcupsd/apcupsd.conf root@192.168.2.9:/etc/apcupsd/
+scp /etc/apcupsd/syslog-ng.conf root@192.168.2.9:/etc/
 scp /etc/config/uhttpd root@192.168.2.9:/etc/config/
 scp /etc/config/autoreboot root@192.168.2.9:/etc/config/
 scp /etc/config/cifs root@192.168.2.9:/etc/config/
