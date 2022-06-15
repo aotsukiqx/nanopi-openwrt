@@ -93,8 +93,8 @@ jobs:
           . $GITHUB_WORKSPACE/scripts/merge_packages.sh
           . $GITHUB_WORKSPACE/scripts/patches.sh
           cd
-          BRANCH='master'
-          svn export https://github.com/openwrt/luci/branches/$BRANCH luci
+          BRANCH='trunk'
+          svn export https://github.com/openwrt/luci/$BRANCH luci
           pushd luci
           # fix docker io.weight issue "https://github.com/openwrt/luci/issues/5327" | /usr/lib/lua/luci/model/cbi/dockerman/newcontainer.lua | container.lua
           sed -i 's/local[ ]blkio_weight[ ]\=[ ]data.blkio_weight[ ]or[ ]500/local blkio_weight \= nil/g' applications/luci-app-dockerman/luasrc/model/cbi/dockerman/newcontainer.lua
