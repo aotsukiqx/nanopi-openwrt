@@ -1,4 +1,4 @@
-name: build_upstream
+name: build
 
 on:
   repository_dispatch:
@@ -6,7 +6,7 @@ on:
     inputs:
       device:
         description: 'select device to build'
-        default: 'r4s'
+        default: 'r2s'
         required: false
       branch:
         description: 'seleclt openwrt branch'
@@ -22,7 +22,7 @@ jobs:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
       BRANCH: ${{ github.event.client_payload.branch || github.event.inputs.branch }}
       TG: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-    if: github.repository_owner=='aotsukiqx'
+    if: github.repository_owner=='klever1988'
 
     steps:
 
@@ -50,15 +50,10 @@ jobs:
       - name: Checkout
         run: |
           cd
-          curl -sL https://raw.githubusercontent.com/aotsukiqx/nanopi-openwrt/zstd-bin/zstd | sudo tee /usr/bin/zstd > /dev/null
+          curl -sL https://raw.githubusercontent.com/klever1988/nanopi-openwrt/zstd-bin/zstd | sudo tee /usr/bin/zstd > /dev/null
           for i in {1..20}
           do
-            if [[ "$DEVICE"!="r4s" && "$DEVICE"!="x86" ]]; then
-              echo "Using ib: $DEVICE"
-              curl -sL --fail https://github.com/klever1988/sshactions/releases/download/cache/lede.$DEVICE.img.zst.0$i || break
-            else
-              curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/lede.$DEVICE.img.zst.0$i || break
-            fi
+            curl -sL --fail https://github.com/klever1988/sshactions/releases/download/cache/lede.$DEVICE.img.zst.0$i || break
           done | zstdmt -d -o lede.img || (truncate -s 33g lede.img && mkfs.btrfs -M lede.img)
           LOOP_DEVICE=$(losetup -f) && echo "LOOP_DEVICE=$LOOP_DEVICE" >> $GITHUB_ENV
           sudo losetup -P --direct-io $LOOP_DEVICE lede.img
@@ -155,14 +150,15 @@ jobs:
         if: env.TG
         run: |
           cd
+          sleep 60
           sudo mount -o remount,compress=no,nodatacow,nodatasum lede
-          # cd lede/; pv /dev/zero > zerospace || true; sync; rm -f zerospace; cd -
-          # sleep 60
+          cd lede/; pv /dev/zero > zerospace || true; sync; rm -f zerospace; cd -
+          sleep 60
           sudo umount lede
           sudo losetup -d $LOOP_DEVICE
           export AUTH="Authorization: token ${{ secrets.SEC_TOKEN }}"
-          export cache_path='github.com/repos/aotsukiqx/nanopi-openwrt/releases'
-          export cache_repo_id='56878497'
+          export cache_path='github.com/repos/klever1988/sshactions/releases'
+          export cache_repo_id='39020554'
           #zstdmt -c --adapt --long lede.img | parallel --wc --block 1.99G --pipe \
           #'curl -s --data-binary @- -H "$AUTH" -H "Content-Type: application/octet-stream" https://uploads.$cache_path/$cache_repo_id/assets?name=lede.'$DEVICE'.img.zst.0{#} > /dev/null'
           zstdmt -c --long lede.img | split --numeric=1 -b 2000m - lede.$DEVICE.img.zst.
@@ -171,15 +167,17 @@ jobs:
           #  while true; do curl --data-binary @$f -H "$AUTH" -H 'Content-Type: application/octet-stream' "https://uploads.$cache_path/$cache_repo_id/assets?name=$f" && break || true; done
           #done
           while true; do
-          ret=$(curl -sH "$AUTH" "https://api.$cache_path/tags/ib_cache")
-          echo $ret | jq -r '.assets[] | select(.name | contains ("'$DEVICE'.img")).id' | xargs -n1 -i curl -X DELETE -H "$AUTH" "https://api.$cache_path/assets/{}" || true
-          echo $ret | jq -r '.assets[] | select(.name == "ib-'$DEVICE'.tar.xz").id' | xargs -n1 -i curl -X DELETE -H "$AUTH" "https://api.$cache_path/assets/{}" || true
+          ret=$(curl -sH "$AUTH" "https://api.$cache_path/tags/cache")
+          echo $ret | jq -r '.assets[] | select(.name | contains ("'$DEVICE'.img")).id' | \
+          xargs -n1 -i curl -X DELETE -H "$AUTH" "https://api.$cache_path/assets/{}"
+          echo $ret | jq -r '.assets[] | select(.name == "ib-'$DEVICE'.tar.xz").id' | \
+          xargs -n1 -i curl -X DELETE -H "$AUTH" "https://api.$cache_path/assets/{}"
           ls *img.zst* ib-$DEVICE.tar.xz | parallel --wc 'while true; do curl -T {} -H "$AUTH" -H "Content-Type: application/octet-stream" "https://uploads.$cache_path/$cache_repo_id/assets?name={}" && break || true; done'
-          # set +e
-          # for i in {1..20}; do curl -sL --fail https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/lede.$DEVICE.img.zst.0$i || break; done | zstdmt -d -o /dev/null
+          set +e
+          for i in {1..20}; do curl -sL --fail https://github.com/klever1988/sshactions/releases/download/cache/lede.$DEVICE.img.zst.0$i || break; done | zstdmt -d -o /dev/null
           if [ $? -eq 0 ]; then break; fi
           done
-          # set -e
+          set -e
 
       - name: Send tg notification
         if: env.TG
@@ -200,13 +198,14 @@ jobs:
           TUNNEL_HOST: ${{secrets.TUNNEL_HOST}}
 
   generate_slim_firmware:
+    needs: build_packages
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} slim firmware
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
-      BRANCH: master  
 
     steps:
+
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
@@ -216,7 +215,7 @@ jobs:
           sudo apt update && sudo apt install qemu-utils
           sudo sysctl vm.swappiness=0
           ulimit -SHn 65000
-          curl -L https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/ib-$DEVICE.tar.xz | tar -Jxvf -
+          curl -L https://github.com/klever1988/sshactions/releases/download/cache/ib-$DEVICE.tar.xz | tar -Jxvf -
           mv *imagebuilder* ib && cd ib
           . $GITHUB_WORKSPACE/scripts/merge_files.sh
           mkdir -p files/local_feed && sudo mount --bind packages files/local_feed
@@ -233,24 +232,27 @@ jobs:
           gzip -dc $DEVICE-slim.img.gz | md5sum | sed "s/-/$DEVICE-slim.img/" > $DEVICE-slim.img.md5
           echo "strDate=$(TZ=UTC-8 date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "strDevice=$(echo $DEVICE | awk '{print toupper($0)}')" >> $GITHUB_ENV
+
       - name: Upload release asset
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./release/*
-          tag: ${{env.strDate}}.${{env.BRANCH}}
+          tag: ${{env.strDate}}
           file_glob: true
           overwrite: true
-          release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
+          release_name: ${{env.strDate}} 自动发布
 
   generate_firmware:
+    needs: build_packages
+    if: always()
     name: Generate ${{ github.event.client_payload.device || github.event.inputs.device }} firmware
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
     env:
       DEVICE: ${{ github.event.client_payload.device || github.event.inputs.device }}
-      BRANCH: master
 
     steps:
+
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
@@ -260,7 +262,7 @@ jobs:
           sudo apt update && sudo apt install qemu-utils
           sudo sysctl vm.swappiness=0
           ulimit -SHn 65000
-          curl -L https://github.com/aotsukiqx/nanopi-openwrt/releases/download/ib_cache/ib-$DEVICE.tar.xz | tar -Jxvf -
+          curl -L https://github.com/klever1988/sshactions/releases/download/cache/ib-$DEVICE.tar.xz | tar -Jxvf -
           set -x
           mv *imagebuilder* ib && cd ib
           . $GITHUB_WORKSPACE/scripts/merge_files.sh
@@ -292,12 +294,13 @@ jobs:
           mv $(ls -1 ./bin/targets/*/*/*img.gz | head -1) $GITHUB_WORKSPACE/release/$DEVICE-with-docker.img.gz
           cd $GITHUB_WORKSPACE/release/ && md5sum $DEVICE-with-docker.img.gz > $DEVICE-with-docker.img.gz.md5
           gzip -dc $DEVICE-with-docker.img.gz | md5sum | sed "s/-/$DEVICE-with-docker.img/" > $DEVICE-with-docker.img.md5
+
       - name: Upload release asset
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./release/*
-          tag: ${{env.strDate}}.${{env.BRANCH}}
+          tag: ${{env.strDate}}
           file_glob: true
           overwrite: true
-          release_name: ${{env.strDate}} ${{env.BRANCH}} 自动发布
+          release_name: ${{env.strDate}} 自动发布
