@@ -19,6 +19,7 @@ scp /etc/config/cifs root@192.168.2.9:/etc/config/
 scp /etc/config/dhcp root@192.168.2.9:/etc/config/
 scp /etc/config/zerotier root@192.168.2.9:/etc/config/
 scp /etc/config/bandwidthd root@192.168.2.9:/etc/config/
+scp /etc/crontabs/root root@192.168.2.9:/etc/crontabs
 scp -r /etc/config/zero root@192.168.2.9:/etc/config/
 scp /etc/v2ray/config.json root@192.168.2.9:/etc/v2ray/config.json
 scp -r /root/heimdall root@192.168.2.9:/root/
