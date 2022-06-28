@@ -6,7 +6,7 @@
 # 3. 重启新GW并修改LAN IP和配置WAN口拨号
 # 4. 替换GW并部署Heimdall
 
-scp -r /etc/dropbear/ root@192.168.2.9:/etc/dropbear/
+scp -r /etc/dropbear root@192.168.2.9:/etc/
 scp /etc/github.hosts root@192.168.2.9:/etc/
 scp /etc/rc.local root@192.168.2.9:/etc/
 scp /etc/config/passwall root@192.168.2.9:/etc/config/
@@ -21,10 +21,8 @@ scp /etc/config/autoreboot root@192.168.2.9:/etc/config/
 scp /etc/config/cifs root@192.168.2.9:/etc/config/
 scp /etc/config/dhcp root@192.168.2.9:/etc/config/
 scp /etc/config/zerotier root@192.168.2.9:/etc/config/
-scp /etc/config/bandwidthd root@192.168.2.9:/etc/config/
 scp /etc/crontabs/root root@192.168.2.9:/etc/crontabs
 scp -r /etc/config/zero root@192.168.2.9:/etc/config/
-scp /etc/v2ray/config.json root@192.168.2.9:/etc/v2ray/config.json
 scp -r /root/heimdall root@192.168.2.9:/root/
 scp -r /root/v2s_cert root@192.168.2.9:/root/
 scp -r /root/docker-baseimage-ubuntu-bionic root@192.168.2.9:/root/
